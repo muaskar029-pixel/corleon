@@ -12,7 +12,7 @@
 
 
 	// for page post to enable tab
-	import ArchiveView from "./digital-asset/+page.svelte";
+	import AssetView from "./digital-asset/+page.svelte";
 
 	let { data } = $props();
 	let active_tab = $derived(page.url.searchParams.get("tab") ?? "dashboard");
@@ -37,8 +37,8 @@
                         <DataTable data={dummy_data} />
 					</Tabs.Content>
 					<!-- for archive view tab -->
-					<Tabs.Content value="archive">
-                        <ArchiveView data={{ archives: data.archives }} />
+					<Tabs.Content value="digital-asset">
+                        <AssetView data={{ assets: data.digital_asset }} />
                     </Tabs.Content>
 				</Tabs.Root>
 			</div>

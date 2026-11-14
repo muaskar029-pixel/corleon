@@ -6,10 +6,10 @@ export async function load() {
     console.log("Total Data:", result.total);
 
     if (result.error) {
-        console.warn('Saat memuat arsip: ${result.error}');
+        console.warn(`Saat memuat arsip: ${result.error}`);
     }
-    return {                                                                                                                                                      
-        assets: result.assets,                                                                                                                                
-        total: result.total                                                                                                                                       
+    return {
+        assets: result.assets,
+        total: result.total
     };
 }
