@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { wpApi } from "#lib/api.js";
+import { wpApi, parseMetabox, parsePostTaxonomies, parseEmbeddedTerms } from "#lib/api.js";
 
 export const digital_asset_service = {
     async getAll(perPage = 50) {
@@ -19,7 +19,9 @@ export const digital_asset_service = {
                 date: item.date,
                 status: item.status,
                 link: item.link,
-                metabox: item.metabox ?? {}
+                metabox: parseMetabox(item.metabox),
+                taxonomies: parsePostTaxonomies(item),
+                taxonomy_terms: parseEmbeddedTerms(item)
             }));
 
             return {

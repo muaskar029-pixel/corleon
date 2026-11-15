@@ -38,7 +38,13 @@
 					</Tabs.Content>
 					<!-- for archive view tab -->
 					<Tabs.Content value="digital-asset">
-                        <AssetView data={{ assets: data.digital_asset }} />
+                        <AssetView
+                            data={{
+                                assets: data.digital_asset,
+                                taxonomies: data.taxonomies,
+                                termsByTaxonomy: data.termsByTaxonomy
+                            }}
+                        />
                     </Tabs.Content>
 				</Tabs.Root>
 			</div>

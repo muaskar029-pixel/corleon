@@ -52,8 +52,8 @@
                 icon: FrameCorners,
 				items: [                                                                                                                                                                                                                          
                     { title: "All Assets", url: "/?tab=digital-asset" },                                                                                                                                                                            
-                    { title: "Add / Edit Post", url: "/digital-asset/edit" },                                                                                                                                                                       
-                    { title: "Taxonomy", url: "/post/digital-asset/taxonomy" },                                                                                                                                                                          
+                    { title: "Add / Edit Post", url: "/digital-asset/create" },                                                                                                                                                                       
+                    { title: "Taxonomy", url: "/?tab=digital-asset" },                                                                                                                                                                          
                 ],
 			},
 		],
