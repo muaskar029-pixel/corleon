@@ -71,3 +71,10 @@ export async function getTaxonomies(type = 'digital_asset') {
 
   return taxonomies;
 }
+
+export async function getUsers() {
+  const res = await wpApi.get('/users', {
+    params: { context: 'edit' }
+  });
+  return res.data;
+}
