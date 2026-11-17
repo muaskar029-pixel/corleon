@@ -74,7 +74,31 @@ export async function getTaxonomies(type = 'digital_asset') {
 
 export async function getUsers() {
   const res = await wpApi.get('/users', {
+    params: { context: 'edit', per_page: 100 }
+  });
+  return res.data;
+}
+
+export async function getUserById(id) {
+  const res = await wpApi.get(`/users/${id}`, {
     params: { context: 'edit' }
+  });
+  return res.data;
+}
+
+export async function createUser(data) {
+  const res = await wpApi.post('/users', data);
+  return res.data;
+}
+
+export async function updateUser(id, data) {
+  const res = await wpApi.post(`/users/${id}`, data);
+  return res.data;
+}
+
+export async function deleteUser(id, reassign = 1) {
+  const res = await wpApi.delete(`/users/${id}`, {
+    params: { force: true, reassign }
   });
   return res.data;
 }
