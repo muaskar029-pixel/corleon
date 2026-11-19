@@ -4,7 +4,7 @@
   import PencilSimpleIcon from 'phosphor-svelte/lib/PencilSimpleIcon';
   import ArrowLeftIcon from 'phosphor-svelte/lib/ArrowLeftIcon';
   import { getPostById } from '$lib/wp/axios.js';
-  import PageBanner from '../PageBanner.svelte';
+  import PageBanner from '$lib/PageBanner.svelte';
   import { fieldGroups } from '../fields.js';
 
   const id = page.params.id;
@@ -14,7 +14,7 @@
 </script>
 
 <div
-  class="bg-[radial-gradient(circle_at_0%_100%,rgba(219,0,15,0.10),transparent_45%),linear-gradient(135deg,#F7F6FF,#F7F6FF,#FDE4E6)] p-6 text-[#0E0347] dark:bg-[radial-gradient(circle_at_0%_100%,rgba(219,0,15,0.16),transparent_45%),linear-gradient(135deg,#0B0711,#0B0711,#0E0347)] dark:text-[#FFFFFF]"
+  class="brand-page"
 >
   {#await assetPromise}
     <!-- skeleton in the same shape as the loaded page -->
@@ -27,6 +27,8 @@
     {@const imageUrl = asset._embedded?.['wp:featuredmedia']?.[0]?.source_url}
     {@const rawMeta = asset.metabox?.all_meta || {}}
     {@const terms = asset._embedded?.['wp:term']?.flat() || []}
+    <!-- group terms by taxonomy slug, e.g. { access_level: [...], country: [...] } -->
+    {@const termGroups = Object.entries(terms.reduce((acc, t) => ((acc[t.taxonomy] ??= []).push(t), acc), {}))}
     {@const value = (key) => rawMeta[key]?.[0]}
     {@const groups = fieldGroups
       .map((g) => ({ ...g, fields: g.fields.filter((f) => value(f.key)) }))
@@ -55,7 +57,7 @@
     </PageBanner>
 
     <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-      <!-- left: full image (object-contain, never cropped) + taxonomy terms -->
+      <!-- left: full image (object-contain, never cropped) -->
       <div class="space-y-4 rounded-2xl border border-[#C4C0D4]/40 bg-white p-4 shadow-[0_8px_24px_-12px_rgba(14,3,71,0.25)] dark:border-white/10 dark:bg-[#150B52]">
         <div class="relative aspect-[4/3] overflow-hidden rounded-xl bg-[#F7F6FF] dark:bg-[#0E0347]">
           {#if imageUrl}
@@ -64,15 +66,6 @@
             <div class="text-body-sm flex h-full items-center justify-center text-[#C4C0D4]">No image</div>
           {/if}
         </div>
-        {#if terms.length > 0}
-          <div class="flex flex-wrap gap-1.5">
-            {#each terms as term}
-              <span class="text-body-sm rounded-full bg-[#0B2E8D]/10 px-3 py-0.5 font-medium text-[#0B2E8D] dark:bg-[#0035C6]/30 dark:text-[#C4C0D4]">
-                {term.name}
-              </span>
-            {/each}
-          </div>
-        {/if}
       </div>
 
       <!-- right: description + grouped details; empty fields are hidden -->
@@ -82,6 +75,28 @@
             {@html asset.content.rendered}
           </div>
         {/if}
+
+        <section>
+          <h3 class="text-body-sm mb-2 font-bold tracking-wider text-[#DB000F] uppercase">Klasifikasi</h3>
+          {#if termGroups.length === 0}
+            <p class="text-body-sm text-[#0B2E8D]/70 dark:text-[#C4C0D4]/70">Belum ada klasifikasi.</p>
+          {/if}
+          <div class="grid gap-3 sm:grid-cols-2">
+            {#each termGroups as [taxonomy, items]}
+              <div class="rounded-xl border border-[#C4C0D4]/40 bg-[#F7F6FF] p-3 dark:border-white/10 dark:bg-[#0E0347]">
+                <!-- slug -> label: access_level -> Access level -->
+                <p class="text-body-sm mb-1.5 text-[#0B2E8D] capitalize dark:text-[#C4C0D4]">{taxonomy.replace(/[_-]/g, ' ')}</p>
+                <div class="flex flex-wrap gap-1.5">
+                  {#each items as term}
+                    <span class="text-body-sm rounded-full bg-[#0B2E8D]/10 px-3 py-0.5 font-bold text-[#0B2E8D] dark:bg-[#0035C6]/30 dark:text-white">
+                      {term.name}
+                    </span>
+                  {/each}
+                </div>
+              </div>
+            {/each}
+          </div>
+        </section>
 
         <div>
           <h2 class="text-h5 mb-4 font-bold text-[#0E0347] dark:text-white">Detail Asset</h2>

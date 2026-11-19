@@ -130,6 +130,21 @@
   background-color: #0b0711;
 }
 
+/* Page background: brand gradient + faint red glow bottom-left (Asset and Users pages) */
+.brand-page {
+  padding: 1.5rem;
+  color: #0e0347;
+  background:
+    radial-gradient(circle at 0% 100%, rgb(219 0 15 / 0.1), transparent 45%),
+    linear-gradient(135deg, #f7f6ff, #f7f6ff, #fde4e6);
+}
+.dark .brand-page {
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 0% 100%, rgb(219 0 15 / 0.16), transparent 45%),
+    linear-gradient(135deg, #0b0711, #0b0711, #0e0347);
+}
+
 /* WordPress HTML (content.rendered): Tailwind preflight strips margins and list bullets */
 @layer components {
   .wp-content > * + * {

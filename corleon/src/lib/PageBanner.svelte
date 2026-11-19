@@ -1,5 +1,5 @@
 <script>
-  // Navy -> red hero banner shared by the Asset pages (guideline "Secondary 30%" card).
+  // Navy -> red hero banner shared by the Asset and Users pages (guideline "Secondary 30%" card).
   // titleHtml: WordPress title.rendered (may contain entities); title: plain text.
   let { eyebrow, title = '', titleHtml = '', meta, actions } = $props();
 </script>

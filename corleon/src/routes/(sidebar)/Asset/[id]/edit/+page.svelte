@@ -5,7 +5,7 @@
   import FloppyDiskIcon from 'phosphor-svelte/lib/FloppyDiskIcon';
   import XIcon from 'phosphor-svelte/lib/XIcon';
   import { getPostById, updatePost, uploadMedia, getTaxonomies } from '$lib/wp/axios.js';
-  import PageBanner from '../../PageBanner.svelte';
+  import PageBanner from '$lib/PageBanner.svelte';
   import { fieldGroups } from '../../fields.js';
 
   const id = page.params.id;
@@ -49,6 +49,10 @@
     asset_license: '',
     mime_type: ''
   });
+
+  // every form segment is its own card so sections read as separate blocks
+  const card =
+    'rounded-2xl border border-[#C4C0D4]/40 bg-white p-6 shadow-[0_8px_24px_-12px_rgba(14,3,71,0.25)] dark:border-white/10 dark:bg-[#150B52]';
 
   const cleanHtml = (html = '') => html.replace(/<[^>]+>/g, '').trim();
 
@@ -108,7 +112,7 @@
 </script>
 
 <div
-  class="bg-[radial-gradient(circle_at_0%_100%,rgba(219,0,15,0.10),transparent_45%),linear-gradient(135deg,#F7F6FF,#F7F6FF,#FDE4E6)] p-6 text-[#0E0347] dark:bg-[radial-gradient(circle_at_0%_100%,rgba(219,0,15,0.16),transparent_45%),linear-gradient(135deg,#0B0711,#0B0711,#0E0347)] dark:text-[#FFFFFF]"
+  class="brand-page"
 >
   <PageBanner eyebrow="Edit Asset" title={title || `Asset #${id}`}>
     {#snippet actions()}
@@ -131,11 +135,8 @@
   {#if loading}
     <div class="h-[32rem] animate-pulse rounded-2xl bg-[#0E0347]/10 dark:bg-white/5"></div>
   {:else}
-    <form
-      class="brand-form space-y-8 rounded-2xl border border-[#C4C0D4]/40 bg-white p-6 shadow-[0_8px_24px_-12px_rgba(14,3,71,0.25)] dark:border-white/10 dark:bg-[#150B52]"
-      onsubmit={save}
-    >
-      <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+    <form class="brand-form space-y-6" onsubmit={save}>
+      <section class="{card} grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
         <!-- cover: 4:3 frame, whole image visible -->
         <div>
           <Label class="mb-2">Cover Image</Label>
@@ -164,11 +165,11 @@
             <Textarea rows={6} bind:value={content} class="w-full" />
           </div>
         </div>
-      </div>
+      </section>
 
       {#if taxonomies.length > 0}
-        <section>
-          <h2 class="text-body-sm mb-3 font-bold tracking-wider text-[#DB000F] uppercase">Taxonomies</h2>
+        <section class={card}>
+          <h2 class="text-body-sm mb-3 font-bold tracking-wider text-[#DB000F] uppercase">Klasifikasi</h2>
           <div class="grid gap-4 sm:grid-cols-2">
             {#each taxonomies as tax}
               <div class="rounded-xl border border-[#C4C0D4]/40 bg-[#F7F6FF] p-3 dark:border-white/10 dark:bg-[#0E0347]">
@@ -178,6 +179,8 @@
                     <Checkbox bind:group={selectedTerms[tax.rest_base]} value={term.id}>
                       {term.name}
                     </Checkbox>
+                  {:else}
+                    <p class="text-body-sm text-[#0B2E8D]/50 dark:text-[#C4C0D4]/50">Belum ada pilihan</p>
                   {/each}
                 </div>
               </div>
@@ -187,7 +190,7 @@
       {/if}
 
       {#each fieldGroups as group}
-        <section>
+        <section class={card}>
           <h2 class="text-body-sm mb-3 font-bold tracking-wider text-[#DB000F] uppercase">{group.name}</h2>
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {#each group.fields as field}
@@ -211,7 +214,7 @@
 
       <!-- sticky action bar: Save stays reachable without scrolling to the end of the long form -->
       <div
-        class="sticky bottom-0 -mx-6 -mb-6 flex justify-end gap-3 rounded-b-2xl border-t border-[#C4C0D4]/40 bg-white/90 px-6 py-4 backdrop-blur dark:border-white/10 dark:bg-[#150B52]/90"
+        class="sticky bottom-4 z-10 flex justify-end gap-3 rounded-2xl border border-[#C4C0D4]/40 bg-white/90 px-6 py-4 shadow-[0_8px_24px_-12px_rgba(14,3,71,0.35)] backdrop-blur dark:border-white/10 dark:bg-[#150B52]/90"
       >
         <Button
           href={`/Asset/${id}`}

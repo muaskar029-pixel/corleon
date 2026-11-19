@@ -4,7 +4,7 @@
   import { Card, Spinner, Button, Badge, Input } from 'flowbite-svelte';
   import { getPosts, deletePost, getCurrentUser, logoutJwt } from '$lib/wp/axios.js';
   import PlusIcon from 'phosphor-svelte/lib/PlusIcon';
-  import PageBanner from './PageBanner.svelte';
+  import PageBanner from '$lib/PageBanner.svelte';
 
   let page = $state(1);
   let search = $state('');
@@ -50,7 +50,7 @@
 
 <!-- base gradient + faint red glow bottom-left so the brand red warms the whole page -->
 <div
-  class="bg-[radial-gradient(circle_at_0%_100%,rgba(219,0,15,0.10),transparent_45%),linear-gradient(135deg,#F7F6FF,#F7F6FF,#FDE4E6)] p-6 text-[#0E0347] dark:bg-[radial-gradient(circle_at_0%_100%,rgba(219,0,15,0.16),transparent_45%),linear-gradient(135deg,#0B0711,#0B0711,#0E0347)] dark:text-[#FFFFFF]"
+  class="brand-page"
 >
   <PageBanner eyebrow="Asset Library" title="Digital Assets">
     {#snippet meta()}
