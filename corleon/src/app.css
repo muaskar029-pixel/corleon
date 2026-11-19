@@ -109,16 +109,6 @@
 .brand-form label:has(input[type='checkbox']) {
   font-weight: 400; /* checkbox options stay regular; only field labels are bold */
 }
-.brand-form input[type='file']::file-selector-button {
-  margin-right: 0.75rem;
-  border: 1px solid #0e0347;
-  border-radius: 9999px;
-  background: transparent;
-  padding: 0.375rem 1rem;
-  color: #0e0347;
-  font-weight: 700;
-  cursor: pointer;
-}
 
 .dark .brand-form :is(input:not([type='checkbox'], [type='radio'], [type='file']), select, textarea) {
   border-color: rgb(255 255 255 / 0.12);
@@ -138,10 +128,6 @@
 .dark .brand-form input[type='checkbox']:not(:checked) {
   border-color: rgb(255 255 255 / 0.25);
   background-color: #0b0711;
-}
-.dark .brand-form input[type='file']::file-selector-button {
-  border-color: #ffffff;
-  color: #ffffff;
 }
 
 /* WordPress HTML (content.rendered): Tailwind preflight strips margins and list bullets */

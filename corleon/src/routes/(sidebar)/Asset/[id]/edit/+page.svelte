@@ -146,12 +146,12 @@
               <div class="text-body-sm flex h-full items-center justify-center text-[#C4C0D4]">No image</div>
             {/if}
           </div>
-          <input
-            type="file"
-            accept="image/*"
-            class="text-body-sm block w-full text-[#0E0347] dark:text-[#C4C0D4]"
-            onchange={(e) => (imageFile = e.currentTarget.files?.[0])}
-          />
+          <!-- native file input is hidden (its built-in button gets clipped); the label is the clickable button -->
+          <label class="inline-flex cursor-pointer items-center gap-3 rounded-full focus-within:ring-2 focus-within:ring-[#DB000F]">
+            <input type="file" accept="image/*" class="sr-only" onchange={(e) => (imageFile = e.currentTarget.files?.[0])} />
+            <span class="text-body-sm shrink-0 rounded-full bg-[#0E0347] px-4 py-1.5 font-bold text-white dark:bg-white dark:text-[#0E0347]">Choose File</span>
+            <span class="text-body-sm truncate font-normal text-[#0E0347] dark:text-white">{imageFile?.name ?? 'No file chosen'}</span>
+          </label>
         </div>
 
         <div class="space-y-4">
