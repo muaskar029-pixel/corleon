@@ -15,7 +15,7 @@
   let drawerHidden = $state(false);
 </script>
 
-<header class="fixed top-0 z-40 mx-auto w-full flex-none border-b border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-800">
+<header class="fixed top-0 z-40 mx-auto w-full flex-none border-b border-[#C4C0D4]/40 bg-white/90 backdrop-blur dark:border-white/10 dark:bg-[#0B0711]/90">
   <Navbar bind:drawerHidden />
 </header>
 <div class="overflow-hidden lg:flex">

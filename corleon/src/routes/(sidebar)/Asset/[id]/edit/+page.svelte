@@ -121,11 +121,11 @@
   }
 </script>
 
-<div class="p-4">
-  <h1 class="mb-4 text-2xl font-bold dark:text-white">Edit Digital Asset #{id}</h1>
+<div class="bg-gradient-to-br from-[#F7F6FF] via-[#F7F6FF] to-[#FDE4E6] p-6 text-[#0E0347] dark:from-[#0B0711] dark:via-[#0B0711] dark:to-[#0E0347] dark:text-[#FFFFFF]">
+  <h1 class="mb-6 text-h4 font-bold text-[#0E0347] dark:text-[#FFFFFF]">Edit Digital Asset #{id}</h1>
 
   {#if errorMsg}
-    <p class="mb-4 rounded-lg bg-red-100 p-3 text-sm text-red-700 dark:bg-red-900 dark:text-red-200">
+    <p class="mb-4 rounded-xl bg-[#A10000]/10 p-3 text-body-sm text-[#DB000F] dark:bg-[#A10000]/30 dark:text-white">
       Error: {errorMsg}
     </p>
   {/if}
@@ -133,7 +133,7 @@
   {#if loading}
     <Spinner />
   {:else}
-    <form class="max-w-4xl space-y-6" onsubmit={save}>
+    <form class="max-w-4xl space-y-6 rounded-2xl border border-[#C4C0D4]/40 bg-white p-6 shadow-[0_8px_24px_-12px_rgba(14,3,71,0.25)] dark:border-white/10 dark:bg-[#150B52]" onsubmit={save}>
       <div class="grid gap-4 md:grid-cols-2">
         <div>
           <Label class="mb-2">Title</Label>
@@ -148,7 +148,7 @@
           <input
             type="file"
             accept="image/*"
-            class="block w-full text-sm text-gray-900 dark:text-gray-300"
+            class="block w-full text-body-sm text-[#0E0347] dark:text-[#C4C0D4]"
             onchange={(e) => (imageFile = e.currentTarget.files?.[0])}
           />
         </div>
@@ -161,10 +161,10 @@
 
       {#if taxonomies.length > 0}
         <div>
-          <h2 class="mb-3 text-lg font-semibold dark:text-white">Taxonomies</h2>
+          <h2 class="mb-3 text-h6 font-bold text-[#0E0347] dark:text-white">Taxonomies</h2>
           <div class="grid gap-4 sm:grid-cols-2">
             {#each taxonomies as tax}
-              <div class="rounded-lg border p-3 dark:border-gray-700">
+              <div class="rounded-xl border border-[#C4C0D4]/40 bg-[#F7F6FF] p-3 dark:border-[#0035C6]/30 dark:bg-[#0E0347]">
                 <Label class="mb-2 block font-semibold">{tax.name}</Label>
                 <div class="flex flex-wrap gap-3">
                   {#each tax.terms as term}
@@ -180,7 +180,7 @@
       {/if}
 
       <div>
-        <h2 class="mb-3 text-lg font-semibold dark:text-white">Details (Metabox)</h2>
+        <h2 class="mb-3 text-h6 font-bold text-[#0E0347] dark:text-white">Details (Metabox)</h2>
         <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           <div>
             <Label class="mb-1">Resource Type</Label>
@@ -321,11 +321,13 @@
         </div>
       </div>
 
-      <div class="flex gap-2">
-        <Button type="submit" disabled={saving}>
+      <div class="flex gap-3">
+        <Button type="submit" disabled={saving} class="rounded-full bg-[#DB000F] px-6 text-white hover:bg-[#BB080B]">
           {saving ? 'Saving...' : 'Save'}
         </Button>
-        <Button color="alternative" href={`/Asset/${id}`}>Cancel</Button>
+        <Button href={`/Asset/${id}`} class="rounded-full border border-[#0E0347] bg-transparent px-6 text-[#0E0347] hover:bg-[#0E0347] hover:text-white dark:border-white dark:bg-transparent dark:text-white dark:hover:bg-white dark:hover:text-[#0E0347]">
+          Cancel
+        </Button>
       </div>
     </form>
   {/if}

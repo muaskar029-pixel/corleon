@@ -90,7 +90,7 @@
 <Navbar class="mx-10 sm:mx-0">
   <NavBrand href="/" class="mx-10">
     <img src="/images/corleon-svelte-icon-logo.png" class="me-2.5 h-6 sm:h-8" alt="Corleon Logo" />
-    <span class="ml-px self-center text-xl font-semibold whitespace-nowrap sm:text-2xl dark:text-white"> Corleon </span>
+    <span class="font-heading ml-px self-center text-xl font-extrabold tracking-tight whitespace-nowrap text-[#0E0347] sm:text-2xl dark:text-white"> Corleon </span>
   </NavBrand>
   <div class="hidden lg:block lg:ps-3">
     {#if list}
@@ -111,11 +111,18 @@
       </NavUl>
     {:else}
       <form>
-        <Search size="md" class="mt-1 w-96 border focus:outline-none" />
+        <Search
+          size="md"
+          class="mt-1 w-96"
+          classes={{
+            input: 'rounded-full border-[#C4C0D4] bg-[#F7F6FF] text-[#0E0347] focus:border-[#DB000F] focus:ring-[#DB000F] dark:border-white/10 dark:bg-[#0B0711] dark:text-white dark:focus:border-[#DB000F] dark:focus:ring-[#DB000F]',
+            icon: 'text-[#0B2E8D]/60 dark:text-[#C4C0D4]/70'
+          }}
+        />
       </form>
     {/if}
   </div>
-  <div class="ms-auto flex items-center text-gray-500 sm:order-2 dark:text-gray-300">
+  <div class="ms-auto flex items-center text-[#0B2E8D] sm:order-2 dark:text-[#C4C0D4]">
     <NotificationList {notifications} />
     <AppsMenu {menu} />
     <DarkMode />

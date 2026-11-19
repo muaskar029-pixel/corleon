@@ -37,7 +37,7 @@
   ];
 </script>
 
-<div class="p-4">
+<div class="bg-gradient-to-br from-[#F7F6FF] via-[#F7F6FF] to-[#FDE4E6] p-6 text-[#0E0347] dark:from-[#0B0711] dark:via-[#0B0711] dark:to-[#0E0347] dark:text-[#FFFFFF]">
   {#await assetPromise}
     <Spinner />
   {:then asset}
@@ -45,45 +45,61 @@
     {@const rawMeta = asset.metabox?.all_meta || {}}
     {@const terms = asset._embedded?.['wp:term']?.flat() || []}
 
-    <div class="mb-4 flex max-w-4xl items-center justify-between">
-      <h1 class="text-2xl font-bold dark:text-white">
+    <div class="mb-6 flex max-w-4xl items-center justify-between">
+      <h1 class="text-h4 font-bold text-[#0E0347] dark:text-[#FFFFFF]">
         {@html asset.title.rendered}
       </h1>
       <div class="flex gap-2">
-        <Button size="sm" href={`/Asset/${id}/edit`}>Edit</Button>
-        <Button size="sm" color="alternative" href="/Asset">Back</Button>
+        <Button
+          size="sm"
+          href={`/Asset/${id}/edit`}
+          class="rounded-full bg-[#DB000F] px-5 text-white hover:bg-[#BB080B]"
+        >
+          Edit
+        </Button>
+        <Button
+          size="sm"
+          href="/Asset"
+          class="rounded-full border border-[#0E0347] bg-transparent px-5 text-[#0E0347] hover:bg-[#0E0347] hover:text-white dark:border-white dark:bg-transparent dark:text-white dark:hover:bg-white dark:hover:text-[#0E0347]"
+        >
+          Back
+        </Button>
       </div>
     </div>
 
-    <div class="max-w-4xl space-y-6">
+    <div class="max-w-4xl space-y-6 rounded-2xl border border-[#C4C0D4]/40 bg-white p-6 shadow-[0_8px_24px_-12px_rgba(14,3,71,0.25)] dark:border-white/10 dark:bg-[#150B52]">
       {#if imageUrl}
-        <img src={imageUrl} alt="Thumbnail" class="max-h-80 w-full rounded-lg object-cover" />
+        <img src={imageUrl} alt="Thumbnail" class="max-h-80 w-full rounded-xl object-cover" />
       {/if}
 
-      <div class="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+      <div class="flex flex-wrap items-center gap-2 text-body-sm text-[#0B2E8D] dark:text-[#C4C0D4]">
         <span>Published: {new Date(asset.date).toLocaleDateString()}</span>
         {#each terms as term}
-          <Badge color="indigo">{term.name}</Badge>
+          <Badge class="rounded-full bg-[#0B2E8D] px-3 py-0.5 text-white dark:bg-[#0035C6]">
+            {term.name}
+          </Badge>
         {/each}
       </div>
 
-      <div class="text-base text-gray-800 dark:text-gray-200">
+      <div class="text-body text-[#0E0347] dark:text-[#FFFFFF]">
         {@html asset.content.rendered}
       </div>
 
       <div>
-        <h2 class="mb-3 text-lg font-semibold dark:text-white">Details (Metabox)</h2>
+        <h2 class="mb-3 text-h5 font-bold text-[#0E0347] dark:text-[#FFFFFF]">Details (Metabox)</h2>
         <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
           {#each metaFields as field}
-            <div class="rounded-lg border p-3 dark:border-gray-700">
-              <p class="text-xs text-gray-500">{field.label}</p>
-              <p class="font-medium dark:text-white">{rawMeta[field.key]?.[0] || '-'}</p>
+            <div class="rounded-xl border border-[#C4C0D4]/40 bg-[#F7F6FF] p-3 dark:border-[#0035C6]/30 dark:bg-[#0E0347]">
+              <p class="text-body-sm text-[#0B2E8D] dark:text-[#C4C0D4]">{field.label}</p>
+              <p class="text-body font-bold text-[#0E0347] dark:text-[#FFFFFF]">
+                {rawMeta[field.key]?.[0] || '-'}
+              </p>
             </div>
           {/each}
         </div>
       </div>
     </div>
   {:catch err}
-    <p class="text-red-600">Failed to load asset: {err.message}</p>
+    <p class="text-[#DB000F]">Failed to load asset: {err.message}</p>
   {/await}
 </div>

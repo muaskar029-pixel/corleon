@@ -11,6 +11,12 @@ importers:
       '@flowbite-svelte-plugins/chart':
         specifier: ^0.2.4
         version: 0.2.4(svelte@5.43.10)(tailwindcss@4.1.17)
+      '@fontsource/lato':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource/roboto':
+        specifier: ^5.3.0
+        version: 5.3.0
       axios:
         specifier: ^1.21.1
         version: 1.21.1(debug@4.4.3(supports-color@7.2.0))(supports-color@7.2.0)
@@ -486,6 +492,12 @@ packages:
     peerDependencies:
       svelte: ^5.0.0
       tailwindcss: ^4.1.4
+
+  '@fontsource/lato@5.3.0':
+    resolution: {integrity: sha512-0WhF/4rhrw+ErIyneKvhHn2YAl+xf8GDtllgOgOzDmeaSlLQtjpChXaQOpWhG2BchQW0WJy2zLV12Hdg0ndOMw==}
+
+  '@fontsource/roboto@5.3.0':
+    resolution: {integrity: sha512-BapRJOWYP+LZ21zp+wBQjfpPYKRoxc4LspJ/RLuI+HSMBD5u/X4O+ESDrSvEqDSy0rAl7GwBJ+09mdc16cVQ1Q==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -2852,6 +2864,10 @@ snapshots:
       apexcharts: 4.7.0
       svelte: 5.43.10
       tailwindcss: 4.1.17
+
+  '@fontsource/lato@5.3.0': {}
+
+  '@fontsource/roboto@5.3.0': {}
 
   '@humanfs/core@0.19.1': {}
 

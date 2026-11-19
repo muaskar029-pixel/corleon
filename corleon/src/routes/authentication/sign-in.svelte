@@ -31,7 +31,7 @@
   </a>
   <Card class="w-full max-w-md p-6">
     <h1 class="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
-      Sign in with WordPress JWT
+      Sign in with email or username
     </h1>
 
     {#if errorMsg}
@@ -46,7 +46,7 @@
         <Input
           id="username"
           bind:value={username}
-          placeholder="Enter WordPress username"
+          placeholder="Enter your username or email"
           required
         />
       </div>

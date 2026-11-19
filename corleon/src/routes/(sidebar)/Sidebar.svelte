@@ -1,5 +1,6 @@
 <script lang="ts">
   import { afterNavigate } from '$app/navigation';
+  import { page } from '$app/state';
   import { Sidebar, SidebarDropdownWrapper, SidebarGroup, SidebarItem, SidebarWrapper, SidebarButton, uiHelpers } from 'flowbite-svelte';
   import {
     AngleDownOutline,
@@ -29,9 +30,23 @@
     drawerHidden = true;
   };
 
-  let iconClass = 'flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-white';
-  let itemClass = 'flex items-center p-2 text-base text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 group dark:text-gray-200 dark:hover:bg-gray-700 w-full';
-  let groupClass = 'pt-2 space-y-2 mb-3';
+  // icons sit inside the <a> (aClass adds group/link), so they can react to its hover and active state
+  let iconClass =
+    'shrink-0 w-5 h-5 text-[#0B2E8D]/60 transition group-hover/link:text-[#DB000F] group-aria-[current=page]/link:text-white dark:text-[#C4C0D4]/70 dark:group-hover/link:text-white';
+  let itemClass = 'w-full';
+  let linkClass = 'group/link w-full';
+  let groupClass = 'pt-2 space-y-1 mb-3';
+  // shared by plain links and dropdown buttons so every row looks the same
+  const rowClass = 'rounded-xl p-2.5 text-body font-normal text-[#0E0347] transition hover:bg-[#DB000F]/10 hover:text-[#DB000F] dark:text-[#C4C0D4] dark:hover:bg-white/5 dark:hover:text-white';
+  const sidebarClasses = {
+    div: 'h-full px-1 py-1 overflow-y-auto bg-white dark:bg-[#0B0711]',
+    nonactive: rowClass,
+    active: 'rounded-xl p-2.5 text-body font-bold bg-[#DB000F] text-white hover:bg-[#BB080B] dark:bg-[#DB000F] dark:text-white dark:hover:bg-[#BB080B]'
+  };
+  const dropdownClasses = {
+    btn: `group/link ${rowClass}`,
+    svg: 'h-3 w-3 text-[#0B2E8D]/60 dark:text-[#C4C0D4]/70'
+  };
 
   const sidebarUi = uiHelpers();
   let isOpen = $state(false);
@@ -49,8 +64,6 @@
   let posts = [
     { name: 'Dashboard', Icon: ChartPieOutline, href: '/dashboard' },
     { name: 'Digital Asset', Icon: LayersSolid, href: '/Asset' },
-    { name: 'Users', Icon: ClipboardListSolid, href: '/crud/users' },
-    { name: 'Login', Icon: LockSolid, href: '/authentication/sign-in' },
     {
       name: 'Layouts',
       Icon: TableColumnSolid,
@@ -123,22 +136,23 @@
   ];
 </script>
 
-<SidebarButton breakpoint="lg" onclick={sidebarUi.toggle} class="fixed top-[22px] z-40 mb-2" />
+<SidebarButton breakpoint="lg" onclick={sidebarUi.toggle} class="fixed top-[22px] z-40 mb-2 text-[#0E0347] hover:bg-[#DB000F]/10 dark:text-[#C4C0D4] dark:hover:bg-white/5" />
 <Sidebar
   breakpoint="lg"
   backdrop={false}
   {isOpen}
   {closeSidebar}
   params={{ x: -50, duration: 50 }}
-  class="top-0 left-0 mt-[69px] h-screen w-64 bg-gray-50 transition-transform lg:block dark:bg-gray-800"
-  classes={{ div: 'h-full px-1 py-1 overflow-y-auto bg-gray-50 dark:bg-gray-800', nonactive: 'p-2', active: 'p-2' }}
+  activeUrl={page.url.pathname}
+  class="top-0 left-0 mt-[69px] h-screen w-64 border-r border-[#C4C0D4]/40 bg-white transition-transform lg:block dark:border-white/10 dark:bg-[#0B0711]"
+  classes={sidebarClasses}
 >
   <h4 class="sr-only">Main menu</h4>
-  <SidebarWrapper class="scrolling-touch h-full max-w-2xs overflow-y-auto bg-white px-3 pt-20 lg:sticky lg:me-0 lg:block lg:h-[calc(100vh-4rem)] lg:pt-5 dark:bg-gray-800">
+  <SidebarWrapper class="scrolling-touch h-full max-w-2xs overflow-y-auto bg-white px-3 pt-20 lg:sticky lg:me-0 lg:block lg:h-[calc(100vh-4rem)] lg:pt-5 dark:bg-[#0B0711]">
     <SidebarGroup class={groupClass}>
       {#each posts as { name, Icon, children, href } (name)}
         {#if children}
-          <SidebarDropdownWrapper label={name} class="pr-3">
+          <SidebarDropdownWrapper label={name} classes={dropdownClasses}>
             {#snippet arrowdown()}
               <AngleDownOutline strokeWidth="3.3" size="sm" />
             {/snippet}
@@ -149,11 +163,11 @@
               <Icon class={iconClass} />
             {/snippet}
             {#each Object.entries(children) as [title, href]}
-              <SidebarItem label={title} {href} spanClass="ml-9" class={itemClass} aClass="w-full" />
+              <SidebarItem label={title} {href} spanClass="ml-9" class={itemClass} aClass={linkClass} />
             {/each}
           </SidebarDropdownWrapper>
         {:else}
-          <SidebarItem label={name} {href} spanClass="ml-3" class={itemClass} aClass="w-full p-0 py-2">
+          <SidebarItem label={name} {href} spanClass="ml-3" class={itemClass} aClass={linkClass}>
             {#snippet icon()}
               <Icon class={iconClass} />
             {/snippet}
@@ -162,7 +176,7 @@
       {/each}
     </SidebarGroup>
     <SidebarGroup class={groupClass}>
-      <SidebarDropdownWrapper label="Docs" class="pr-3">
+      <SidebarDropdownWrapper label="Docs" classes={dropdownClasses}>
         {#snippet arrowdown()}
           <AngleDownOutline strokeWidth="3.3" size="sm" />
         {/snippet}
@@ -173,23 +187,23 @@
           <BookOpenOutline class={iconClass} />
         {/snippet}
         {#each docsRoute as doc}
-          <SidebarItem label={doc} href={`/api-check/${doc}`} spanClass="ml-3" class={itemClass}>
+          <SidebarItem label={doc} href={`/api-check/${doc}`} spanClass="ml-3" class={itemClass} aClass={linkClass}>
             {#snippet icon()}
-              <FireOutline class="h-5 w-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-white" />
+              <FireOutline class={iconClass} />
             {/snippet}
           </SidebarItem>
         {/each}
       </SidebarDropdownWrapper>
-      <SidebarItem label="About" spanClass="flex-1 ms-3 whitespace-nowrap" href="/about">
+      <SidebarItem label="About" spanClass="ml-3" href="/about" class={itemClass} aClass={linkClass}>
         {#snippet icon()}
-          <GridSolid class="h-5 w-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-300 dark:group-hover:text-white" />
+          <GridSolid class={iconClass} />
         {/snippet}
       </SidebarItem>
     </SidebarGroup>
 
     <SidebarGroup class={groupClass}>
       {#each links as { label, href, Icon } (label)}
-        <SidebarItem {label} {href} spanClass="ml-3" class={itemClass}>
+        <SidebarItem {label} {href} spanClass="ml-3" class={itemClass} aClass={linkClass}>
           {#snippet icon()}
             <Icon class={iconClass} />
           {/snippet}

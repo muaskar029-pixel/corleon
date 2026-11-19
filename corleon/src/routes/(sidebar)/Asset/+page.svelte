@@ -23,19 +23,13 @@
     if (role === 'administrator') return true;
 
     const terms = asset._embedded?.['wp:term']?.flat() || [];
-    const accessTerms = terms
-      .filter((t) => t.taxonomy === 'access_level')
-      .map((t) => t.slug.toLowerCase());
+    const accessTerms = terms.filter((t) => t.taxonomy === 'access_level').map((t) => t.slug.toLowerCase());
 
     if (role === 'dam_contributor') {
       return !accessTerms.includes('restricted') && !accessTerms.includes('confidential');
     }
 
-    return (
-      !accessTerms.includes('internal') &&
-      !accessTerms.includes('restricted') &&
-      !accessTerms.includes('confidential')
-    );
+    return !accessTerms.includes('internal') && !accessTerms.includes('restricted') && !accessTerms.includes('confidential');
   }
 
   let assetsPromise = $derived(getPosts('digital_asset', page, search, perPage));
@@ -52,31 +46,43 @@
   }
 </script>
 
-<div class="p-4">
-  <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+<!-- base gradient + faint red glow bottom-left so the brand red warms the whole page -->
+<div
+  class="bg-[radial-gradient(circle_at_0%_100%,rgba(219,0,15,0.10),transparent_45%),linear-gradient(135deg,#F7F6FF,#F7F6FF,#FDE4E6)] p-6 text-[#0E0347] dark:bg-[radial-gradient(circle_at_0%_100%,rgba(219,0,15,0.16),transparent_45%),linear-gradient(135deg,#0B0711,#0B0711,#0E0347)] dark:text-[#FFFFFF]"
+>
+  <!-- hero banner: navy -> red, same as the guideline's "Secondary 30%" card; white text in both themes -->
+  <div class="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-[#0E0347] via-[#150B52] to-[#BB080B] p-6 text-white">
     <div>
-      <h1 class="text-2xl font-bold dark:text-white">Digital Assets</h1>
+      <p class="mb-1 text-xs font-bold tracking-[0.2em] text-white/70 uppercase">Asset Library</p>
+      <h1 class="text-h3 mb-1 leading-tight font-extrabold tracking-tight text-white">Digital Assets</h1>
       {#if currentUser}
-        <p class="text-xs text-gray-500">
-          Logged in as: <strong>{currentUser.name}</strong> ({role})
-          <button class="ml-2 text-red-600 underline" onclick={handleLogout}>Logout</button>
+        <p class="text-body-sm text-[#C4C0D4]">
+          Logged in as <strong class="font-bold text-white">{currentUser.name}</strong>
+          <span class="ml-1 rounded-full bg-white/15 px-2 py-0.5 text-xs font-bold tracking-wide text-white uppercase">{role}</span>
+          <button class="ml-2 text-white underline hover:text-[#F7F6FF]/80" onclick={handleLogout}>Logout</button>
         </p>
       {:else}
-        <p class="text-xs text-gray-500">
-          <a href="/authentication/sign-in" class="text-blue-600 underline">Sign in with JWT</a>
+        <p class="text-body-sm text-[#C4C0D4]">
+          <a href="/authentication/sign-in" class="text-white underline">Sign in with JWT</a>
         </p>
       {/if}
     </div>
 
-    <div class="flex gap-2">
+    <div class="flex items-center gap-3">
       <Input
         size="sm"
+        class="rounded-full border-white/20 bg-white/10 text-white placeholder:text-white/60 focus:border-white focus:ring-white dark:border-white/20 dark:bg-white/10 dark:text-white"
         placeholder="Search assets..."
         bind:value={search}
         oninput={() => (page = 1)}
       />
       {#if canCreate}
-        <Button size="sm" href="/Asset/create" class="shrink-0">+ Add New</Button>
+        <!-- white CTA: a red button would vanish on the red end of the banner -->
+        <Button
+          size="sm"
+          href="/Asset/create"
+          class="shrink-0 rounded-full bg-white px-5 font-bold tracking-wide text-[#DB000F] hover:bg-[#F7F6FF] dark:bg-white dark:text-[#DB000F] dark:hover:bg-[#F7F6FF]">+ Add New</Button
+        >
       {/if}
     </div>
   </div>
@@ -85,59 +91,96 @@
     <Spinner />
   {:then assets}
     {@const visibleAssets = assets.filter(canViewAsset)}
-    <div class="grid gap-4 md:grid-cols-3">
+    <!-- auto-rows-fr: every row as tall as the tallest card, so all boxes match -->
+    <div class="grid auto-rows-fr gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
       {#each visibleAssets as asset}
         {@const meta = asset.metabox?.all_meta || {}}
-        {@const terms = asset._embedded?.['wp:term']?.flat() || []}
-        <Card img={asset._embedded?.['wp:featuredmedia']?.[0]?.source_url}>
-          <div class="mb-2 flex items-center justify-between">
-            <h5 class="text-xl font-bold dark:text-white">
-              {@html asset.title.rendered}
-            </h5>
+        {@const thumb = asset._embedded?.['wp:featuredmedia']?.[0]?.source_url}
+        <Card
+          size="xl"
+          class="h-full overflow-hidden rounded-2xl border border-[#C4C0D4]/40 bg-white shadow-[0_8px_24px_-12px_rgba(14,3,71,0.25)] dark:border-white/10 dark:bg-[#150B52]"
+        >
+          <!-- fixed 4:3 frame; img is absolute so tall images cannot stretch it -->
+          <a href={`/Asset/${asset.id}`} class="relative mx-4 mt-4 block aspect-[4/3] shrink-0 overflow-hidden rounded-xl bg-[#F7F6FF] dark:bg-[#0E0347]">
+            {#if thumb}
+              <img
+                src={thumb}
+                alt=""
+                loading="lazy"
+                class="absolute inset-0 h-full w-full object-cover"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-[#0B0711]/50 via-transparent to-transparent"></div>
+            {:else}
+              <div class="text-body-sm flex h-full items-center justify-center text-[#C4C0D4]">No image</div>
+            {/if}
             {#if meta.resource_type?.[0]}
-              <Badge>{meta.resource_type[0]}</Badge>
+              <span class="absolute top-3 left-3 rounded-full bg-[#DB000F] px-3 py-1 text-xs font-bold tracking-wide text-white uppercase shadow">
+                {meta.resource_type[0]}
+              </span>
             {/if}
-          </div>
+          </a>
 
-          {#if terms.length > 0}
-            <div class="mb-2 flex flex-wrap gap-1">
-              {#each terms as term}
-                <Badge color="indigo">{term.name}</Badge>
-              {/each}
+          <div class="flex flex-1 flex-col p-4">
+            <a href={`/Asset/${asset.id}`} class="mb-1">
+              <h5 class="text-h6 line-clamp-2 leading-snug font-semibold tracking-tight text-[#0E0347] dark:text-white">
+                {@html asset.title.rendered}
+              </h5>
+            </a>
+            <p class="mb-3 text-xs font-bold tracking-wider text-[#0B2E8D]/70 uppercase dark:text-[#C4C0D4]/70">
+              {new Date(asset.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+            </p>
+
+
+            <div class="text-body-sm mb-4 line-clamp-2 leading-relaxed text-[#0E0347]/70 dark:text-[#C4C0D4]">
+              {@html asset.content.rendered}
             </div>
-          {/if}
 
-          <div class="mb-3 text-sm text-gray-700 dark:text-gray-400">
-            {@html asset.content.rendered}
-          </div>
-
-          <p class="mb-4 text-xs text-gray-500">
-            {new Date(asset.date).toLocaleDateString()}
-          </p>
-
-          <div class="flex gap-2">
-            <Button size="xs" href={`/Asset/${asset.id}`}>View</Button>
-            {#if canEdit}
-              <Button size="xs" color="alternative" href={`/Asset/${asset.id}/edit`}>Edit</Button>
-            {/if}
-            {#if canDelete}
-              <Button size="xs" color="red" onclick={() => remove(asset.id)}>Delete</Button>
-            {/if}
+            <div class="mt-auto flex items-center gap-2 border-t border-[#C4C0D4]/40 pt-4 dark:border-[#0035C6]/30">
+              <Button size="xs" href={`/Asset/${asset.id}`} class="rounded-full font-bold tracking-wide bg-[#DB000F] px-4 text-white hover:bg-[#BB080B] dark:bg-[#DB000F] dark:hover:bg-[#BB080B]">View</Button>
+              {#if canEdit}
+                <Button
+                  size="xs"
+                  href={`/Asset/${asset.id}/edit`}
+                  class="rounded-full font-bold tracking-wide border border-[#0E0347] bg-transparent px-4 text-[#0E0347] hover:bg-[#0E0347] hover:text-white dark:border-white dark:bg-transparent dark:text-white dark:hover:bg-white dark:hover:text-[#0E0347]"
+                >
+                  Edit
+                </Button>
+              {/if}
+              {#if canDelete}
+                <Button
+                  size="xs"
+                  onclick={() => remove(asset.id)}
+                  class="ml-auto rounded-full font-bold tracking-wide bg-transparent px-3 text-[#DB000F] hover:bg-[#DB000F]/10 dark:bg-transparent dark:text-[#ff4d58] dark:hover:bg-[#DB000F]/20"
+                >
+                  Delete
+                </Button>
+              {/if}
+            </div>
           </div>
         </Card>
       {/each}
     </div>
 
-    <div class="mt-6 flex items-center justify-between">
-      <Button size="sm" color="alternative" disabled={page <= 1} onclick={() => page--}>
+    <div class="mt-8 flex items-center justify-between">
+      <Button
+        size="sm"
+        disabled={page <= 1}
+        onclick={() => page--}
+        class="rounded-full font-bold tracking-wide border border-[#0E0347] bg-transparent px-5 text-[#0E0347] hover:bg-[#0E0347] hover:text-white dark:border-white dark:bg-transparent dark:text-white dark:hover:bg-white dark:hover:text-[#0E0347]"
+      >
         Previous
       </Button>
-      <span class="text-sm text-gray-600 dark:text-gray-400">Page {page}</span>
-      <Button size="sm" color="alternative" disabled={assets.length < perPage} onclick={() => page++}>
+      <span class="font-heading text-body-sm font-semibold tracking-wide text-[#0E0347] dark:text-[#C4C0D4]">Page {page}</span>
+      <Button
+        size="sm"
+        disabled={assets.length < perPage}
+        onclick={() => page++}
+        class="rounded-full font-bold tracking-wide border border-[#0E0347] bg-transparent px-5 text-[#0E0347] hover:bg-[#0E0347] hover:text-white dark:border-white dark:bg-transparent dark:text-white dark:hover:bg-white dark:hover:text-[#0E0347]"
+      >
         Next
       </Button>
     </div>
   {:catch err}
-    <p class="text-red-600">Failed to load digital assets: {err.message}</p>
+    <p class="text-[#DB000F]">Failed to load digital assets: {err.message}</p>
   {/await}
 </div>
