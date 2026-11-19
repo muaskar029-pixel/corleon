@@ -26,6 +26,9 @@ importers:
       flowbite-svelte-icons:
         specifier: ^3.0.0
         version: 3.0.0(svelte@5.43.10)
+      phosphor-svelte:
+        specifier: ^3.1.1
+        version: 3.1.1(svelte@5.43.10)(vite@7.2.2(jiti@2.6.1)(lightningcss@1.30.2))
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.4.0
@@ -1906,6 +1909,15 @@ packages:
 
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
+
+  phosphor-svelte@3.1.1:
+    resolution: {integrity: sha512-M+CeN2s7YAFHWVxctLj41SyXsjWxoIoNi/rZ15XIYh9XEpbgJ2mE2hn54tA30l6WSagaBg2bA/OazlZJVDUkpQ==}
+    peerDependencies:
+      svelte: ^5.0.0 || ^5.0.0-next.96
+      vite: '>=5'
+    peerDependenciesMeta:
+      vite:
+        optional: true
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -4268,6 +4280,14 @@ snapshots:
   path-type@4.0.0: {}
 
   pathe@2.0.3: {}
+
+  phosphor-svelte@3.1.1(svelte@5.43.10)(vite@7.2.2(jiti@2.6.1)(lightningcss@1.30.2)):
+    dependencies:
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+      svelte: 5.43.10
+    optionalDependencies:
+      vite: 7.2.2(jiti@2.6.1)(lightningcss@1.30.2)
 
   picocolors@1.1.1: {}
 

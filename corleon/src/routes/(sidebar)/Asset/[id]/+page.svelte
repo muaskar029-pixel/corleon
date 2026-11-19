@@ -1,105 +1,115 @@
 <script>
   import { page } from '$app/state';
-  import { Button, Spinner, Badge } from 'flowbite-svelte';
+  import { Button } from 'flowbite-svelte';
+  import PencilSimpleIcon from 'phosphor-svelte/lib/PencilSimpleIcon';
+  import ArrowLeftIcon from 'phosphor-svelte/lib/ArrowLeftIcon';
   import { getPostById } from '$lib/wp/axios.js';
+  import PageBanner from '../PageBanner.svelte';
+  import { fieldGroups } from '../fields.js';
 
   const id = page.params.id;
   const assetPromise = getPostById(id, 'digital_asset');
 
-  const metaFields = [
-    { key: 'resource_type', label: 'Resource Type' },
-    { key: 'date', label: 'Date' },
-    { key: 'status', label: 'Status' },
-    { key: 'asset_license', label: 'Asset License' },
-    { key: 'location', label: 'Location' },
-    { key: 'screen', label: 'Screen' },
-    { key: 'editor', label: 'Editor' },
-    { key: 'photographer', label: 'Photographer' },
-    { key: 'file_size', label: 'File Size' },
-    { key: 'keyword_other', label: 'Keyword - Other' },
-    { key: 'named_person', label: 'Named person(s)' },
-    { key: 'credit', label: 'Credit' },
-    { key: 'note', label: 'Notes' },
-    { key: 'recognised', label: 'Keywords - Recognised' },
-    { key: 'landmark', label: 'Keywords - Landmark' },
-    { key: 'source', label: 'Source' },
-    { key: 'duration', label: 'Duration' },
-    { key: 'sample', label: 'Sample rate' },
-    { key: 'audio_bitrate', label: 'Audio bitrate' },
-    { key: 'frame_rate', label: 'Frame rate' },
-    { key: 'video_bitrate', label: 'Video bitrate' },
-    { key: 'original_filename', label: 'Original File name' },
-    { key: 'file_hash', label: 'File Hash' },
-    { key: 'image_dimensions', label: 'Image Dimensions' },
-    { key: 'mime_type', label: 'Mime Type' },
-    { key: 'caption', label: 'Caption' },
-    { key: 'document_extract', label: 'Document extract' }
-  ];
+  const formatDate = (d) => new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 </script>
 
-<div class="bg-gradient-to-br from-[#F7F6FF] via-[#F7F6FF] to-[#FDE4E6] p-6 text-[#0E0347] dark:from-[#0B0711] dark:via-[#0B0711] dark:to-[#0E0347] dark:text-[#FFFFFF]">
+<div
+  class="bg-[radial-gradient(circle_at_0%_100%,rgba(219,0,15,0.10),transparent_45%),linear-gradient(135deg,#F7F6FF,#F7F6FF,#FDE4E6)] p-6 text-[#0E0347] dark:bg-[radial-gradient(circle_at_0%_100%,rgba(219,0,15,0.16),transparent_45%),linear-gradient(135deg,#0B0711,#0B0711,#0E0347)] dark:text-[#FFFFFF]"
+>
   {#await assetPromise}
-    <Spinner />
+    <!-- skeleton in the same shape as the loaded page -->
+    <div class="mb-8 h-32 animate-pulse rounded-2xl bg-[#0E0347]/10 dark:bg-white/5"></div>
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+      <div class="aspect-[4/3] animate-pulse rounded-2xl bg-[#0E0347]/10 dark:bg-white/5"></div>
+      <div class="h-96 animate-pulse rounded-2xl bg-[#0E0347]/10 dark:bg-white/5"></div>
+    </div>
   {:then asset}
     {@const imageUrl = asset._embedded?.['wp:featuredmedia']?.[0]?.source_url}
     {@const rawMeta = asset.metabox?.all_meta || {}}
     {@const terms = asset._embedded?.['wp:term']?.flat() || []}
+    {@const value = (key) => rawMeta[key]?.[0]}
+    {@const groups = fieldGroups
+      .map((g) => ({ ...g, fields: g.fields.filter((f) => value(f.key)) }))
+      .filter((g) => g.fields.length > 0)}
 
-    <div class="mb-6 flex max-w-4xl items-center justify-between">
-      <h1 class="text-h4 font-bold text-[#0E0347] dark:text-[#FFFFFF]">
-        {@html asset.title.rendered}
-      </h1>
-      <div class="flex gap-2">
+    <PageBanner eyebrow="Detail Asset" titleHtml={asset.title.rendered}>
+      {#snippet meta()}
+        <p class="text-body-sm text-[#C4C0D4]">Dipublikasikan {formatDate(asset.date)}</p>
+      {/snippet}
+      {#snippet actions()}
         <Button
           size="sm"
           href={`/Asset/${id}/edit`}
-          class="rounded-full bg-[#DB000F] px-5 text-white hover:bg-[#BB080B]"
+          class="gap-2 rounded-full bg-white px-5 font-bold tracking-wide text-[#DB000F] hover:bg-[#F7F6FF] dark:bg-white dark:text-[#DB000F] dark:hover:bg-[#F7F6FF]"
         >
-          Edit
+          <PencilSimpleIcon size={16} weight="bold" /> Edit
         </Button>
         <Button
           size="sm"
           href="/Asset"
-          class="rounded-full border border-[#0E0347] bg-transparent px-5 text-[#0E0347] hover:bg-[#0E0347] hover:text-white dark:border-white dark:bg-transparent dark:text-white dark:hover:bg-white dark:hover:text-[#0E0347]"
+          class="gap-2 rounded-full border border-white bg-transparent px-5 font-bold tracking-wide text-white hover:bg-white hover:text-[#0E0347] dark:bg-transparent dark:hover:bg-white"
         >
-          Back
+          <ArrowLeftIcon size={16} weight="bold" /> Back
         </Button>
+      {/snippet}
+    </PageBanner>
+
+    <div class="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+      <!-- left: full image (object-contain, never cropped) + taxonomy terms -->
+      <div class="space-y-4 rounded-2xl border border-[#C4C0D4]/40 bg-white p-4 shadow-[0_8px_24px_-12px_rgba(14,3,71,0.25)] dark:border-white/10 dark:bg-[#150B52]">
+        <div class="relative aspect-[4/3] overflow-hidden rounded-xl bg-[#F7F6FF] dark:bg-[#0E0347]">
+          {#if imageUrl}
+            <img src={imageUrl} alt="" class="absolute inset-0 h-full w-full object-contain" />
+          {:else}
+            <div class="text-body-sm flex h-full items-center justify-center text-[#C4C0D4]">No image</div>
+          {/if}
+        </div>
+        {#if terms.length > 0}
+          <div class="flex flex-wrap gap-1.5">
+            {#each terms as term}
+              <span class="text-body-sm rounded-full bg-[#0B2E8D]/10 px-3 py-0.5 font-medium text-[#0B2E8D] dark:bg-[#0035C6]/30 dark:text-[#C4C0D4]">
+                {term.name}
+              </span>
+            {/each}
+          </div>
+        {/if}
       </div>
-    </div>
 
-    <div class="max-w-4xl space-y-6 rounded-2xl border border-[#C4C0D4]/40 bg-white p-6 shadow-[0_8px_24px_-12px_rgba(14,3,71,0.25)] dark:border-white/10 dark:bg-[#150B52]">
-      {#if imageUrl}
-        <img src={imageUrl} alt="Thumbnail" class="max-h-80 w-full rounded-xl object-cover" />
-      {/if}
+      <!-- right: description + grouped details; empty fields are hidden -->
+      <div class="space-y-6 rounded-2xl border border-[#C4C0D4]/40 bg-white p-6 shadow-[0_8px_24px_-12px_rgba(14,3,71,0.25)] dark:border-white/10 dark:bg-[#150B52]">
+        {#if asset.content.rendered.trim()}
+          <div class="wp-content text-body leading-relaxed text-[#0E0347] dark:text-white">
+            {@html asset.content.rendered}
+          </div>
+        {/if}
 
-      <div class="flex flex-wrap items-center gap-2 text-body-sm text-[#0B2E8D] dark:text-[#C4C0D4]">
-        <span>Published: {new Date(asset.date).toLocaleDateString()}</span>
-        {#each terms as term}
-          <Badge class="rounded-full bg-[#0B2E8D] px-3 py-0.5 text-white dark:bg-[#0035C6]">
-            {term.name}
-          </Badge>
-        {/each}
-      </div>
-
-      <div class="text-body text-[#0E0347] dark:text-[#FFFFFF]">
-        {@html asset.content.rendered}
-      </div>
-
-      <div>
-        <h2 class="mb-3 text-h5 font-bold text-[#0E0347] dark:text-[#FFFFFF]">Details (Metabox)</h2>
-        <div class="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-          {#each metaFields as field}
-            <div class="rounded-xl border border-[#C4C0D4]/40 bg-[#F7F6FF] p-3 dark:border-[#0035C6]/30 dark:bg-[#0E0347]">
-              <p class="text-body-sm text-[#0B2E8D] dark:text-[#C4C0D4]">{field.label}</p>
-              <p class="text-body font-bold text-[#0E0347] dark:text-[#FFFFFF]">
-                {rawMeta[field.key]?.[0] || '-'}
-              </p>
-            </div>
-          {/each}
+        <div>
+          <h2 class="text-h5 mb-4 font-bold text-[#0E0347] dark:text-white">Detail Asset</h2>
+          {#if groups.length === 0}
+            <p class="text-body-sm text-[#0B2E8D]/70 dark:text-[#C4C0D4]/70">Belum ada detail untuk asset ini.</p>
+          {/if}
+          <div class="space-y-5">
+            {#each groups as group}
+              <section>
+                <h3 class="text-body-sm mb-2 font-bold tracking-wider text-[#DB000F] uppercase">{group.name}</h3>
+                <div class="grid gap-3 sm:grid-cols-2">
+                  {#each group.fields as field}
+                    <div class="rounded-xl border border-[#C4C0D4]/40 bg-[#F7F6FF] p-3 dark:border-white/10 dark:bg-[#0E0347] {field.type === 'textarea' ? 'sm:col-span-2' : ''}">
+                      <p class="text-body-sm text-[#0B2E8D] dark:text-[#C4C0D4]">{field.label}</p>
+                      <p class="text-body font-bold break-words text-[#0E0347] dark:text-white">{value(field.key)}</p>
+                    </div>
+                  {/each}
+                </div>
+              </section>
+            {/each}
+          </div>
         </div>
       </div>
     </div>
   {:catch err}
-    <p class="text-[#DB000F]">Failed to load asset: {err.message}</p>
+    <div class="rounded-2xl border border-[#DB000F]/30 bg-[#A10000]/10 p-6 text-[#DB000F] dark:bg-[#A10000]/30 dark:text-white">
+      <p class="text-h6 font-bold">Asset gagal dimuat</p>
+      <p class="text-body-sm mt-1">{err.message}</p>
+    </div>
   {/await}
 </div>

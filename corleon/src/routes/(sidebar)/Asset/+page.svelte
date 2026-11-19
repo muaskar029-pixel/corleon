@@ -3,6 +3,8 @@
   import { goto } from '$app/navigation';
   import { Card, Spinner, Button, Badge, Input } from 'flowbite-svelte';
   import { getPosts, deletePost, getCurrentUser, logoutJwt } from '$lib/wp/axios.js';
+  import PlusIcon from 'phosphor-svelte/lib/PlusIcon';
+  import PageBanner from './PageBanner.svelte';
 
   let page = $state(1);
   let search = $state('');
@@ -50,15 +52,12 @@
 <div
   class="bg-[radial-gradient(circle_at_0%_100%,rgba(219,0,15,0.10),transparent_45%),linear-gradient(135deg,#F7F6FF,#F7F6FF,#FDE4E6)] p-6 text-[#0E0347] dark:bg-[radial-gradient(circle_at_0%_100%,rgba(219,0,15,0.16),transparent_45%),linear-gradient(135deg,#0B0711,#0B0711,#0E0347)] dark:text-[#FFFFFF]"
 >
-  <!-- hero banner: navy -> red, same as the guideline's "Secondary 30%" card; white text in both themes -->
-  <div class="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-[#0E0347] via-[#150B52] to-[#BB080B] p-6 text-white">
-    <div>
-      <p class="mb-1 text-xs font-bold tracking-[0.2em] text-white/70 uppercase">Asset Library</p>
-      <h1 class="text-h3 mb-1 leading-tight font-extrabold tracking-tight text-white">Digital Assets</h1>
+  <PageBanner eyebrow="Asset Library" title="Digital Assets">
+    {#snippet meta()}
       {#if currentUser}
         <p class="text-body-sm text-[#C4C0D4]">
           Logged in as <strong class="font-bold text-white">{currentUser.name}</strong>
-          <span class="ml-1 rounded-full bg-white/15 px-2 py-0.5 text-xs font-bold tracking-wide text-white uppercase">{role}</span>
+          <span class="text-body-sm ml-1 rounded-full bg-white/15 px-2 py-0.5 font-bold tracking-wide text-white uppercase">{role}</span>
           <button class="ml-2 text-white underline hover:text-[#F7F6FF]/80" onclick={handleLogout}>Logout</button>
         </p>
       {:else}
@@ -66,9 +65,8 @@
           <a href="/authentication/sign-in" class="text-white underline">Sign in with JWT</a>
         </p>
       {/if}
-    </div>
-
-    <div class="flex items-center gap-3">
+    {/snippet}
+    {#snippet actions()}
       <Input
         size="sm"
         class="rounded-full border-white/20 bg-white/10 text-white placeholder:text-white/60 focus:border-white focus:ring-white dark:border-white/20 dark:bg-white/10 dark:text-white"
@@ -81,11 +79,13 @@
         <Button
           size="sm"
           href="/Asset/create"
-          class="shrink-0 rounded-full bg-white px-5 font-bold tracking-wide text-[#DB000F] hover:bg-[#F7F6FF] dark:bg-white dark:text-[#DB000F] dark:hover:bg-[#F7F6FF]">+ Add New</Button
+          class="shrink-0 gap-2 rounded-full bg-white px-5 font-bold tracking-wide text-[#DB000F] hover:bg-[#F7F6FF] dark:bg-white dark:text-[#DB000F] dark:hover:bg-[#F7F6FF]"
         >
+          <PlusIcon size={16} weight="bold" /> Add New
+        </Button>
       {/if}
-    </div>
-  </div>
+    {/snippet}
+  </PageBanner>
 
   {#await assetsPromise}
     <Spinner />

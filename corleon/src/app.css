@@ -77,3 +77,96 @@
     cursor: pointer;
   }
 }
+
+/*
+ * Brand form fields (add class "brand-form" to a <form>).
+ * Left unlayered on purpose: unlayered CSS beats Tailwind's utilities layer,
+ * so these win over the gray classes Flowbite puts on Input/Select/Textarea.
+ */
+.brand-form :is(input:not([type='checkbox'], [type='radio'], [type='file']), select, textarea) {
+  border-radius: 0.75rem;
+  border-color: rgb(196 192 212 / 0.7);
+  background-color: #ffffff;
+  color: #0e0347;
+}
+.brand-form :is(input:not([type='checkbox'], [type='radio'], [type='file']), select, textarea):focus {
+  border-color: #db000f;
+  box-shadow: 0 0 0 1px #db000f;
+  outline: none;
+}
+.brand-form :is(input, textarea)::placeholder {
+  color: rgb(14 3 71 / 0.4);
+}
+.brand-form :is(input, textarea)[readonly] {
+  background-color: #f7f6ff;
+  color: rgb(14 3 71 / 0.55);
+  cursor: not-allowed;
+}
+.brand-form label {
+  color: #0e0347;
+  font-weight: 700;
+}
+.brand-form label:has(input[type='checkbox']) {
+  font-weight: 400; /* checkbox options stay regular; only field labels are bold */
+}
+.brand-form input[type='file']::file-selector-button {
+  margin-right: 0.75rem;
+  border: 1px solid #0e0347;
+  border-radius: 9999px;
+  background: transparent;
+  padding: 0.375rem 1rem;
+  color: #0e0347;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dark .brand-form :is(input:not([type='checkbox'], [type='radio'], [type='file']), select, textarea) {
+  border-color: rgb(255 255 255 / 0.12);
+  background-color: #0b0711;
+  color: #ffffff;
+}
+.dark .brand-form :is(input, textarea)::placeholder {
+  color: rgb(196 192 212 / 0.5);
+}
+.dark .brand-form :is(input, textarea)[readonly] {
+  background-color: rgb(255 255 255 / 0.03);
+  color: rgb(196 192 212 / 0.7);
+}
+.dark .brand-form label {
+  color: #ffffff;
+}
+.dark .brand-form input[type='checkbox']:not(:checked) {
+  border-color: rgb(255 255 255 / 0.25);
+  background-color: #0b0711;
+}
+.dark .brand-form input[type='file']::file-selector-button {
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+/* WordPress HTML (content.rendered): Tailwind preflight strips margins and list bullets */
+@layer components {
+  .wp-content > * + * {
+    margin-top: 0.75rem;
+  }
+  .wp-content :is(ul, ol) {
+    padding-left: 1.25rem;
+  }
+  .wp-content ul {
+    list-style: disc;
+  }
+  .wp-content ol {
+    list-style: decimal;
+  }
+  .wp-content a {
+    color: #db000f;
+    text-decoration: underline;
+  }
+  .wp-content :is(h2, h3, h4) {
+    font-weight: 700;
+    font-size: var(--text-h6);
+  }
+  .wp-content img {
+    border-radius: 0.75rem;
+  }
+}
