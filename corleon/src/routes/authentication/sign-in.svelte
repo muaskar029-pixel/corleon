@@ -1,48 +1,70 @@
 <script lang="ts">
-  import { Label, Input } from 'flowbite-svelte';
-  import { SignIn } from '$lib';
-  import MetaTag from '../utils/MetaTag.svelte';
-  let title = 'Sign in to platform';
-  let site = {
-    name: 'Flowbite',
-    img: '/images/flowbite-svelte-icon-logo.svg',
-    link: '/',
-    imgAlt: 'FlowBite Logo'
-  };
-  let rememberMe = true;
-  let lostPassword = true;
-  let createAccount = true;
-  let lostPasswordLink = 'forgot-password';
-  let loginTitle = 'Login to your account';
-  let registerLink = '/';
-  let createAccountTitle = 'Create account';
+  import { goto } from '$app/navigation';
+  import { Button, Card, Input, Label } from 'flowbite-svelte';
+  import { loginJwt } from '$lib/wp/axios.js';
 
-  const onSubmit = (e: Event) => {
-    const formData = new FormData(e.target as HTMLFormElement);
+  let username = $state('');
+  let password = $state('');
+  let loading = $state(false);
+  let errorMsg = $state('');
 
-    const data: Record<string, string | File> = {};
-    for (const field of formData.entries()) {
-      const [key, value] = field;
-      data[key] = value;
+  async function handleLogin(e: Event) {
+    e.preventDefault();
+    loading = true;
+    errorMsg = '';
+
+    try {
+      await loginJwt(username, password);
+      goto('/Asset');
+    } catch (err: any) {
+      errorMsg = err.response?.data?.message || err.message || 'Login failed';
+    } finally {
+      loading = false;
     }
-    console.log(data);
-  };
-
-  const path: string = '/authentication/sign-in';
-  const description: string = 'Sign in example - Flowbite Svelte Admin Dashboard';
-  const metaTitle: string = 'Flowbite Svelte Admin Dashboard - Sign in';
-  const subtitle: string = 'Sign in';
+  }
 </script>
 
-<MetaTag {path} {description} title={metaTitle} {subtitle} />
+<main class="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4 dark:bg-gray-900">
+  <a href="/" class="mb-6 flex items-center text-2xl font-semibold dark:text-white">
+    <img src="/images/corleon-svelte-icon-logo.png" class="mr-3 h-10" alt="Corleon Logo" />
+    <span>Corleon</span>
+  </a>
+  <Card class="w-full max-w-md p-6">
+    <h1 class="mb-6 text-2xl font-bold text-gray-900 dark:text-white">
+      Sign in with WordPress JWT
+    </h1>
 
-<SignIn {title} {site} {rememberMe} {lostPassword} {createAccount} {lostPasswordLink} {loginTitle} {registerLink} {createAccountTitle} onsubmit={onSubmit}>
-  <div>
-    <Label for="email" class="mb-2 dark:text-white">Your email</Label>
-    <Input type="email" name="email" id="email" placeholder="name@company.com" required class="border outline-none dark:border-gray-600 dark:bg-gray-700" />
-  </div>
-  <div>
-    <Label for="password" class="mb-2 dark:text-white">Your password</Label>
-    <Input type="password" name="password" id="password" placeholder="••••••••" required class="border outline-none dark:border-gray-600 dark:bg-gray-700" />
-  </div>
-</SignIn>
+    {#if errorMsg}
+      <div class="mb-4 rounded-lg bg-red-100 p-3 text-sm text-red-700 dark:bg-red-900 dark:text-red-200">
+        {@html errorMsg}
+      </div>
+    {/if}
+
+    <form class="space-y-4" onsubmit={handleLogin}>
+      <div>
+        <Label for="username" class="mb-2">Username or Email</Label>
+        <Input
+          id="username"
+          bind:value={username}
+          placeholder="Enter WordPress username"
+          required
+        />
+      </div>
+
+      <div>
+        <Label for="password" class="mb-2">Password</Label>
+        <Input
+          id="password"
+          type="password"
+          bind:value={password}
+          placeholder="••••••••"
+          required
+        />
+      </div>
+
+      <Button type="submit" class="w-full" disabled={loading}>
+        {loading ? 'Signing in...' : 'Sign in'}
+      </Button>
+    </form>
+  </Card>
+</main>

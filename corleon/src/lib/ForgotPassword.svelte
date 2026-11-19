@@ -18,10 +18,10 @@
   }: ForgotPasswordProps = $props();
 
   const siteDefault = {
-    name: 'Flowbite',
-    img: '/images/flowbite-svelte-icon-logo.svg',
+    name: 'Corleon',
+    img: '/images/corleon-svelte-icon-logo.png',
     link: '/',
-    imgAlt: 'FlowBite Logo'
+    imgAlt: 'Corleon Logo'
   };
   const siteOptions = $derived(site ?? siteDefault);
 

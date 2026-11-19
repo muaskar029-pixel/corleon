@@ -18,8 +18,8 @@
 
 <Navbar class="fixed start-0 top-0 z-20 w-full border-b border-gray-200 bg-white px-2 py-1 sm:px-4 dark:border-gray-700 dark:bg-gray-900" color="dark">
   <NavBrand href="/">
-    <img src="/images/flowbite-svelte-icon-logo.svg" class="me-3 h-6 sm:h-9" alt="Flowbite Logo" />
-    <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Flowbite</span>
+    <img src="/images/corleon-svelte-icon-logo.png" class="me-3 h-6 sm:h-9" alt="Corleon Logo" />
+    <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">Corleon</span>
   </NavBrand>
   <NavHamburger />
   <NavUl class="ms-8 me-auto">

@@ -1,18 +1,49 @@
 import axios from 'axios';
-import {
-  PUBLIC_WP_API_URL,
-  PUBLIC_WP_USERNAME,
-  PUBLIC_WP_APP_PASSWORD
-} from '$env/static/public';
+import { PUBLIC_WP_API_URL } from '$env/static/public';
 
 export const wpApi = axios.create({
   baseURL: PUBLIC_WP_API_URL,
-  timeout: 10000,
-  auth: {
-    username: PUBLIC_WP_USERNAME,
-    password: PUBLIC_WP_APP_PASSWORD
-  }
+  timeout: 10000
 });
+
+wpApi.interceptors.request.use((config) => {
+  if (typeof localStorage !== 'undefined') {
+    const token = localStorage.getItem('wp_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
+export async function loginJwt(username, password) {
+  const jwtUrl = PUBLIC_WP_API_URL.replace('/wp/v2', '/jwt-auth/v1/token');
+  const res = await axios.post(jwtUrl, { username, password });
+
+  localStorage.setItem('wp_token', res.data.token);
+
+  const me = await wpApi.get('/users/me', {
+    params: { context: 'edit' }
+  });
+
+  localStorage.setItem('wp_user', JSON.stringify(me.data));
+  return me.data;
+}
+
+export function logoutJwt() {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem('wp_token');
+    localStorage.removeItem('wp_user');
+  }
+}
+
+export function getCurrentUser() {
+  if (typeof localStorage !== 'undefined') {
+    const raw = localStorage.getItem('wp_user');
+    return raw ? JSON.parse(raw) : null;
+  }
+  return null;
+}
 
 export async function getPosts(type = 'posts', page = 1, search = '', perPage = 9) {
   const res = await wpApi.get(`/${type}`, {

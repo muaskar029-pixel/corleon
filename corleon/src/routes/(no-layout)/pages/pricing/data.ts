@@ -219,8 +219,8 @@ export const prices: string[][] = [
 ];
 
 export const brand = {
-  href: 'https://flowbite.com',
-  src: '/images/flowbite-svelte-icon-logo.svg',
-  alt: 'Flowbite Logo',
-  name: 'Flowbite'
+  href: '/',
+  src: '/images/corleon-svelte-icon-logo.png',
+  alt: 'Corleon Logo',
+  name: 'Corleon'
 };

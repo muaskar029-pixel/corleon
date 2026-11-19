@@ -1,16 +1,37 @@
 <script lang="ts">
-  import MetaTag from '../../../utils/MetaTag.svelte';
-  import Footer from '../../Footer.svelte';
-  import { Playground } from '$lib';
-  const path: string = '/playground/sidebar';
-  const description: string = 'Playground Sidebar example - Flowbite Svelte Admin Dashboard';
-  const metaTitle: string = 'Flowbite Svelte Admin Dashboard - Playground Sidebar';
-  const subtitle: string = 'Playground Sidebar';
+  import { Card } from 'flowbite-svelte';
+
+  let { data } = $props();
 </script>
 
-<MetaTag {path} {description} title={metaTitle} {subtitle} />
+<div class="p-4">
+  <h1 class="mb-4 text-2xl font-bold dark:text-white">Digital Assets (WPGraphQL)</h1>
 
-<div id="main-content" class="relative mx-auto h-full w-full overflow-y-auto bg-gray-50 p-4 dark:bg-gray-900">
-  <Playground />
+  {#if data.errors}
+    <p class="mb-4 rounded-lg bg-red-100 p-3 text-sm text-red-700">
+      GraphQL Error: {data.errors[0]?.message}
+    </p>
+  {/if}
+
+  {#if data.assets.length > 0}
+    <div class="grid gap-4 md:grid-cols-3">
+      {#each data.assets as asset}
+        <Card img={asset.featuredImage?.node?.sourceUrl}>
+          <h5 class="mb-2 text-xl font-bold dark:text-white">
+            {@html asset.title}
+          </h5>
+
+          <div class="mb-3 text-sm text-gray-700 dark:text-gray-400">
+            {@html asset.content}
+          </div>
+
+          <p class="text-xs text-gray-500">
+            {new Date(asset.date).toLocaleDateString()}
+          </p>
+        </Card>
+      {/each}
+    </div>
+  {:else}
+    <p class="text-gray-500">No digital assets found.</p>
+  {/if}
 </div>
-<Footer />

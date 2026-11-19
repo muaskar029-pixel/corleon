@@ -48,10 +48,9 @@
 
   let posts = [
     { name: 'Dashboard', Icon: ChartPieOutline, href: '/dashboard' },
-    { name: 'Digital Asset', 
-      Icon: LayersSolid, 
-      href: '/Asset' 
-      },
+    { name: 'Digital Asset', Icon: LayersSolid, href: '/Asset' },
+    { name: 'Users', Icon: ClipboardListSolid, href: '/crud/users' },
+    { name: 'Login', Icon: LockSolid, href: '/authentication/sign-in' },
     {
       name: 'Layouts',
       Icon: TableColumnSolid,
