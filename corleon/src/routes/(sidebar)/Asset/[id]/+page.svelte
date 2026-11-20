@@ -1,16 +1,23 @@
 <script>
+  import { onMount } from 'svelte';
   import { page } from '$app/state';
   import { Button } from 'flowbite-svelte';
   import PencilSimpleIcon from 'phosphor-svelte/lib/PencilSimpleIcon';
   import ArrowLeftIcon from 'phosphor-svelte/lib/ArrowLeftIcon';
-  import { getPostById } from '$lib/wp/axios.js';
+  import { getPostById, getCurrentUser } from '$lib/wp/axios.js';
   import PageBanner from '$lib/PageBanner.svelte';
+  import NoAccess from '$lib/NoAccess.svelte';
   import { fieldGroups } from '../fields.js';
+  import { canEditAssets, canViewAsset } from '../../crud/users/roles.js';
 
   const id = page.params.id;
   const assetPromise = getPostById(id, 'digital_asset');
 
-  const formatDate = (d) => new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+  // localStorage is browser-only, so the role is read after mount
+  let role = $state('');
+  onMount(() => (role = getCurrentUser()?.roles?.[0] ?? ''));
+
+  const formatDate = (d) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 </script>
 
 <div
@@ -34,18 +41,23 @@
       .map((g) => ({ ...g, fields: g.fields.filter((f) => value(f.key)) }))
       .filter((g) => g.fields.length > 0)}
 
-    <PageBanner eyebrow="Detail Asset" titleHtml={asset.title.rendered}>
+    {#if !canViewAsset(role, asset)}
+      <NoAccess message="Your access level cannot view this asset." backHref="/Asset" backLabel="Back to assets" />
+    {:else}
+    <PageBanner eyebrow="Asset Details" titleHtml={asset.title.rendered}>
       {#snippet meta()}
-        <p class="text-body-sm text-[#C4C0D4]">Dipublikasikan {formatDate(asset.date)}</p>
+        <p class="text-body-sm text-[#C4C0D4]">Published {formatDate(asset.date)}</p>
       {/snippet}
       {#snippet actions()}
-        <Button
-          size="sm"
-          href={`/Asset/${id}/edit`}
-          class="gap-2 rounded-full bg-white px-5 font-bold tracking-wide text-[#DB000F] hover:bg-[#F7F6FF] dark:bg-white dark:text-[#DB000F] dark:hover:bg-[#F7F6FF]"
-        >
-          <PencilSimpleIcon size={16} weight="bold" /> Edit
-        </Button>
+        {#if canEditAssets(role)}
+          <Button
+            size="sm"
+            href={`/Asset/${id}/edit`}
+            class="gap-2 rounded-full bg-white px-5 font-bold tracking-wide text-[#DB000F] hover:bg-[#F7F6FF] dark:bg-white dark:text-[#DB000F] dark:hover:bg-[#F7F6FF]"
+          >
+            <PencilSimpleIcon size={16} weight="bold" /> Edit
+          </Button>
+        {/if}
         <Button
           size="sm"
           href="/Asset"
@@ -77,9 +89,9 @@
         {/if}
 
         <section>
-          <h3 class="text-body-sm mb-2 font-bold tracking-wider text-[#DB000F] uppercase">Klasifikasi</h3>
+          <h3 class="text-body-sm mb-2 font-bold tracking-wider text-[#DB000F] uppercase">Classification</h3>
           {#if termGroups.length === 0}
-            <p class="text-body-sm text-[#0B2E8D]/70 dark:text-[#C4C0D4]/70">Belum ada klasifikasi.</p>
+            <p class="text-body-sm text-[#0B2E8D]/70 dark:text-[#C4C0D4]/70">No classification yet.</p>
           {/if}
           <div class="grid gap-3 sm:grid-cols-2">
             {#each termGroups as [taxonomy, items]}
@@ -99,9 +111,9 @@
         </section>
 
         <div>
-          <h2 class="text-h5 mb-4 font-bold text-[#0E0347] dark:text-white">Detail Asset</h2>
+          <h2 class="text-h5 mb-4 font-bold text-[#0E0347] dark:text-white">Asset Details</h2>
           {#if groups.length === 0}
-            <p class="text-body-sm text-[#0B2E8D]/70 dark:text-[#C4C0D4]/70">Belum ada detail untuk asset ini.</p>
+            <p class="text-body-sm text-[#0B2E8D]/70 dark:text-[#C4C0D4]/70">No details for this asset yet.</p>
           {/if}
           <div class="space-y-5">
             {#each groups as group}
@@ -121,9 +133,10 @@
         </div>
       </div>
     </div>
+    {/if}
   {:catch err}
     <div class="rounded-2xl border border-[#DB000F]/30 bg-[#A10000]/10 p-6 text-[#DB000F] dark:bg-[#A10000]/30 dark:text-white">
-      <p class="text-h6 font-bold">Asset gagal dimuat</p>
+      <p class="text-h6 font-bold">Failed to load asset</p>
       <p class="text-body-sm mt-1">{err.message}</p>
     </div>
   {/await}

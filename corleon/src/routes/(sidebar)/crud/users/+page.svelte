@@ -3,12 +3,23 @@
   import UserPlusIcon from 'phosphor-svelte/lib/UserPlusIcon';
   import PencilSimpleIcon from 'phosphor-svelte/lib/PencilSimpleIcon';
   import TrashIcon from 'phosphor-svelte/lib/TrashIcon';
-  import { getUsers, deleteUser } from '$lib/wp/axios.js';
+  import { onMount } from 'svelte';
+  import { getUsers, deleteUser, getCurrentUser } from '$lib/wp/axios.js';
   import PageBanner from '$lib/PageBanner.svelte';
-  import { roleOf } from './roles.js';
+  import NoAccess from '$lib/NoAccess.svelte';
+  import { roleOf, isAdmin } from './roles.js';
 
-  let usersPromise = $state(getUsers());
+  // undefined until mounted (localStorage is browser-only), then the user or null
+  let me = $state(undefined);
+  let admin = $derived(isAdmin(me?.roles?.[0]));
+  // the user list (context=edit) is admin-only in WordPress, so only admins fetch it
+  let usersPromise = $state(null);
   let search = $state('');
+
+  onMount(() => {
+    me = getCurrentUser();
+    if (admin) usersPromise = getUsers();
+  });
 
   // client-side filter: getUsers() already returns the whole list
   const matches = (user, q) =>
@@ -24,11 +35,14 @@
 <div class="brand-page">
   <PageBanner eyebrow="User Management" title="Manage Users">
     {#snippet meta()}
-      {#await usersPromise then users}
-        <p class="text-body-sm text-[#C4C0D4]">{users.length} user terdaftar</p>
-      {/await}
+      {#if usersPromise}
+        {#await usersPromise then users}
+          <p class="text-body-sm text-[#C4C0D4]">{users.length} registered users</p>
+        {/await}
+      {/if}
     {/snippet}
     {#snippet actions()}
+      {#if admin}
       <Input
         size="sm"
         class="rounded-full border-white/20 bg-white/10 text-white placeholder:text-white/60 focus:border-white focus:ring-white dark:border-white/20 dark:bg-white/10 dark:text-white"
@@ -42,9 +56,19 @@
       >
         <UserPlusIcon size={16} weight="bold" /> Add User
       </Button>
+      {/if}
     {/snippet}
   </PageBanner>
 
+  {#if me === undefined}
+    <div class="h-64 animate-pulse rounded-2xl bg-[#0E0347]/10 dark:bg-white/5"></div>
+  {:else if !admin}
+    <NoAccess
+      message="Only administrators can manage users."
+      backHref={me ? `/crud/users/${me.id}/edit` : '/authentication/sign-in'}
+      backLabel={me ? 'Edit my profile' : 'Sign in'}
+    />
+  {:else}
   <div class="overflow-hidden rounded-2xl border border-[#C4C0D4]/40 bg-white shadow-[0_8px_24px_-12px_rgba(14,3,71,0.25)] dark:border-white/10 dark:bg-[#150B52]">
     {#await usersPromise}
       <!-- skeleton rows -->
@@ -106,7 +130,7 @@
             {:else}
               <tr>
                 <td colspan="4" class="px-6 py-12 text-center text-[#0B2E8D]/70 dark:text-[#C4C0D4]/70">
-                  {search ? 'Tidak ada user yang cocok.' : 'Belum ada user.'}
+                  {search ? 'No matching users.' : 'No users yet.'}
                 </td>
               </tr>
             {/each}
@@ -115,9 +139,10 @@
       </div>
     {:catch err}
       <div class="m-6 rounded-2xl border border-[#DB000F]/30 bg-[#A10000]/10 p-6 text-[#DB000F] dark:bg-[#A10000]/30 dark:text-white">
-        <p class="text-h6 font-bold">User gagal dimuat</p>
+        <p class="text-h6 font-bold">Failed to load users</p>
         <p class="text-body-sm mt-1">{err.message}</p>
       </div>
     {/await}
   </div>
+  {/if}
 </div>

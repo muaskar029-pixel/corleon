@@ -1,10 +1,32 @@
 <script>
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { Card, Spinner, Button, Badge, Input } from 'flowbite-svelte';
-  import { getPosts, deletePost, getCurrentUser, logoutJwt } from '$lib/wp/axios.js';
-  import PlusIcon from 'phosphor-svelte/lib/PlusIcon';
+  import { getPosts, deletePost, getCurrentUser } from '$lib/wp/axios.js';
   import PageBanner from '$lib/PageBanner.svelte';
+  import PlusIcon from 'phosphor-svelte/lib/PlusIcon';
+  import { isAdmin, canEditAssets, canViewAsset } from '../crud/users/roles.js';
+  import { Search, Dropdown, DropdownItem } from "flowbite-svelte";
+  import { SearchOutline, ChevronDownOutline } from "flowbite-svelte-icons";
+
+  const items = [
+    {
+      label: "All categories"
+    },
+    {
+      label: "Mockups"
+    },
+    {
+      label: "Templates"
+    },
+    {
+      label: "Design"
+    },
+    {
+      label: "Logos"
+    }
+  ];
+
+  let selectCategory = $state("All categories");
 
   let page = $state(1);
   let search = $state('');
@@ -16,23 +38,10 @@
     currentUser = getCurrentUser();
   });
 
-  let role = $derived(currentUser?.roles?.[0] || 'administrator');
-  let canCreate = $derived(role === 'administrator' || role === 'dam_contributor');
-  let canEdit = $derived(role === 'administrator' || role === 'dam_contributor');
-  let canDelete = $derived(role === 'administrator');
-
-  function canViewAsset(asset) {
-    if (role === 'administrator') return true;
-
-    const terms = asset._embedded?.['wp:term']?.flat() || [];
-    const accessTerms = terms.filter((t) => t.taxonomy === 'access_level').map((t) => t.slug.toLowerCase());
-
-    if (role === 'dam_contributor') {
-      return !accessTerms.includes('restricted') && !accessTerms.includes('confidential');
-    }
-
-    return !accessTerms.includes('internal') && !accessTerms.includes('restricted') && !accessTerms.includes('confidential');
-  }
+  let role = $derived(currentUser?.roles?.[0] ?? '');
+  let canCreate = $derived(canEditAssets(role));
+  let canEdit = $derived(canEditAssets(role));
+  let canDelete = $derived(isAdmin(role));
 
   let assetsPromise = $derived(getPosts('digital_asset', page, search, perPage));
 
@@ -42,10 +51,6 @@
     assetsPromise = getPosts('digital_asset', page, search, perPage);
   }
 
-  function handleLogout() {
-    logoutJwt();
-    goto('/authentication/sign-in');
-  }
 </script>
 
 <!-- base gradient + faint red glow bottom-left so the brand red warms the whole page -->
@@ -53,27 +58,7 @@
   class="brand-page"
 >
   <PageBanner eyebrow="Asset Library" title="Digital Assets">
-    {#snippet meta()}
-      {#if currentUser}
-        <p class="text-body-sm text-[#C4C0D4]">
-          Logged in as <strong class="font-bold text-white">{currentUser.name}</strong>
-          <span class="text-body-sm ml-1 rounded-full bg-white/15 px-2 py-0.5 font-bold tracking-wide text-white uppercase">{role}</span>
-          <button class="ml-2 text-white underline hover:text-[#F7F6FF]/80" onclick={handleLogout}>Logout</button>
-        </p>
-      {:else}
-        <p class="text-body-sm text-[#C4C0D4]">
-          <a href="/authentication/sign-in" class="text-white underline">Sign in with JWT</a>
-        </p>
-      {/if}
-    {/snippet}
     {#snippet actions()}
-      <Input
-        size="sm"
-        class="rounded-full border-white/20 bg-white/10 text-white placeholder:text-white/60 focus:border-white focus:ring-white dark:border-white/20 dark:bg-white/10 dark:text-white"
-        placeholder="Search assets..."
-        bind:value={search}
-        oninput={() => (page = 1)}
-      />
       {#if canCreate}
         <!-- white CTA: a red button would vanish on the red end of the banner -->
         <Button
@@ -87,10 +72,35 @@
     {/snippet}
   </PageBanner>
 
+  <form class="flex pb-6">
+  <div class="relative">
+    <Button class="border-primary-700 rounded-e-none border border-e-0 whitespace-nowrap">
+      {selectCategory}
+      <ChevronDownOutline class="ms-2.5 h-6 w-6" />
+    </Button>
+    <Dropdown simple class="w-40">
+      {#each items as { label } (label)}
+        <DropdownItem
+          onclick={() => {
+            selectCategory = label;
+          }}
+          class={selectCategory === label ? "underline" : ""}
+        >
+          {label}
+        </DropdownItem>
+      {/each}
+    </Dropdown>
+  </div>
+  <Search size="lg" classes={{ input: "rounded-none py-2.5" }} placeholder="Search Mockups, Logos, Design Templates..." />
+  <Button class="rounded-s-none p-2!">
+    <SearchOutline class="h-6 w-6" />
+  </Button>
+</form>
+
   {#await assetsPromise}
     <Spinner />
   {:then assets}
-    {@const visibleAssets = assets.filter(canViewAsset)}
+    {@const visibleAssets = assets.filter((a) => canViewAsset(role, a))}
     <!-- auto-rows-fr: every row as tall as the tallest card, so all boxes match -->
     <div class="grid auto-rows-fr gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
       {#each visibleAssets as asset}

@@ -21,6 +21,23 @@
   import Users from '../data/users.json';
   import type { NotificationProps } from '$lib/types';
 
+  import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
+  import { getCurrentUser, logoutJwt } from '$lib/wp/axios.js';
+
+  let me = $state<any>(null);
+
+  onMount(() => {
+    me = getCurrentUser();
+  });      
+
+  
+
+  function signOut() {
+    logoutJwt();
+    goto('/authentication/sign-in');
+  }
+
   type NotificationData = Omit<NotificationProps, 'children'> & {
     content: string;
   };
@@ -87,48 +104,27 @@
   ];
 </script>
 
-<Navbar class="mx-10 sm:mx-0">
-  <NavBrand href="/" class="mx-10">
+<Navbar fluid class="px-4 sm:px-6">
+  <NavBrand href="/">
     <img src="/images/corleon-svelte-icon-logo.png" class="me-2.5 h-6 sm:h-8" alt="Corleon Logo" />
-    <span class="font-heading ml-px self-center text-xl font-extrabold tracking-tight whitespace-nowrap text-[#0E0347] sm:text-2xl dark:text-white"> Corleon </span>
+    <span class="font-heading ml-px self-center text-xl font-extrabold tracking-tight whitespace-nowrap text-[#0E0347] sm:text-2xl dark:text-white"> Radova </span>
   </NavBrand>
   <div class="hidden lg:block lg:ps-3">
-    {#if list}
-      <NavUl class="ml-2" activeUrl="/" activeClass="text-primary-600 dark:text-primary-500">
-        <NavLi href="/">Home</NavLi>
-        <NavLi href="#top">Messages</NavLi>
-        <NavLi href="#top">Profile</NavLi>
-        <NavLi href="#top">Settings</NavLi>
-        <NavLi class="cursor-pointer">
-          Dropdown
-          <ChevronDownOutline class="ms-0 inline" />
-        </NavLi>
-        <Dropdown class="z-20 w-44">
-          <DropdownItem href="#top">Item 1</DropdownItem>
-          <DropdownItem href="#top">Item 2</DropdownItem>
-          <DropdownItem href="#top">Item 3</DropdownItem>
-        </Dropdown>
-      </NavUl>
-    {:else}
-      <form>
-        <Search
-          size="md"
-          class="mt-1 w-96"
-          classes={{
-            input: 'rounded-full border-[#C4C0D4] bg-[#F7F6FF] text-[#0E0347] focus:border-[#DB000F] focus:ring-[#DB000F] dark:border-white/10 dark:bg-[#0B0711] dark:text-white dark:focus:border-[#DB000F] dark:focus:ring-[#DB000F]',
-            icon: 'text-[#0B2E8D]/60 dark:text-[#C4C0D4]/70'
-          }}
-        />
-      </form>
-    {/if}
   </div>
   <div class="ms-auto flex items-center text-[#0B2E8D] sm:order-2 dark:text-[#C4C0D4]">
     <NotificationList {notifications} />
     <AppsMenu {menu} />
     <DarkMode />
-    <UserMenu {...users[4]} {menuItems}>
-      <DropdownDivider />
-      <DropdownItem>Sign out</DropdownItem>
-    </UserMenu>
+    {#if me}
+      <UserMenu name={me.name} email={me.email} avatar={me.avatar_urls[96]} {menuItems}>
+        <DropdownItem class="text-xs font-bold uppercase">{me.roles?.[0]}</DropdownItem>
+        <DropdownItem href={`/crud/users/${me.id}/edit`}>Profile</DropdownItem>
+        <DropdownDivider />
+        <DropdownItem href="/authentication/sign-in">Sign in</DropdownItem>
+        <DropdownItem href="/authentication/sign-up">Sign up</DropdownItem>
+        <DropdownDivider />
+        <DropdownItem onclick={signOut}>Sign out</DropdownItem>
+      </UserMenu>
+    {/if}
   </div>
 </Navbar>

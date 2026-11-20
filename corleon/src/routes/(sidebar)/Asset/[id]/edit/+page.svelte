@@ -1,14 +1,22 @@
 <script>
+  import { onMount } from 'svelte';
   import { page } from '$app/state';
   import { goto } from '$app/navigation';
   import { Button, Input, Label, Textarea, Select, Checkbox } from 'flowbite-svelte';
   import FloppyDiskIcon from 'phosphor-svelte/lib/FloppyDiskIcon';
   import XIcon from 'phosphor-svelte/lib/XIcon';
-  import { getPostById, updatePost, uploadMedia, getTaxonomies } from '$lib/wp/axios.js';
+  import { getPostById, updatePost, uploadMedia, getTaxonomies, getCurrentUser } from '$lib/wp/axios.js';
   import PageBanner from '$lib/PageBanner.svelte';
+  import NoAccess from '$lib/NoAccess.svelte';
   import { fieldGroups } from '../../fields.js';
+  import { isAdmin, canEditAssets, canViewAsset } from '../../../crud/users/roles.js';
 
   const id = page.params.id;
+
+  // localStorage is browser-only, so the role is read after mount
+  let role = $state('');
+  onMount(() => (role = getCurrentUser()?.roles?.[0] ?? ''));
+  let asset = $state.raw(null);
 
   let title = $state('');
   let content = $state('');
@@ -58,6 +66,7 @@
 
   Promise.all([getPostById(id, 'digital_asset'), getTaxonomies('digital_asset')])
     .then(([data, taxList]) => {
+      asset = data;
       title = cleanHtml(data.title?.rendered);
       content = cleanHtml(data.content?.rendered);
       imageUrl = data._embedded?.['wp:featuredmedia']?.[0]?.source_url || '';
@@ -128,12 +137,14 @@
 
   {#if errorMsg}
     <div class="text-body-sm mb-6 rounded-2xl border border-[#DB000F]/30 bg-[#A10000]/10 p-4 text-[#DB000F] dark:bg-[#A10000]/30 dark:text-white">
-      <span class="font-bold">Gagal:</span> {errorMsg}
+      <span class="font-bold">Error:</span> {errorMsg}
     </div>
   {/if}
 
   {#if loading}
     <div class="h-[32rem] animate-pulse rounded-2xl bg-[#0E0347]/10 dark:bg-white/5"></div>
+  {:else if asset && !(canEditAssets(role) && canViewAsset(role, asset))}
+    <NoAccess message="Your access level cannot edit this asset." backHref="/Asset" backLabel="Back to assets" />
   {:else}
     <form class="brand-form space-y-6" onsubmit={save}>
       <section class="{card} grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
@@ -169,18 +180,23 @@
 
       {#if taxonomies.length > 0}
         <section class={card}>
-          <h2 class="text-body-sm mb-3 font-bold tracking-wider text-[#DB000F] uppercase">Klasifikasi</h2>
+          <h2 class="text-body-sm mb-3 font-bold tracking-wider text-[#DB000F] uppercase">Classification</h2>
           <div class="grid gap-4 sm:grid-cols-2">
             {#each taxonomies as tax}
+              <!-- only admins may change who can see an asset -->
+              {@const locked = tax.slug === 'access_level' && !isAdmin(role)}
               <div class="rounded-xl border border-[#C4C0D4]/40 bg-[#F7F6FF] p-3 dark:border-white/10 dark:bg-[#0E0347]">
-                <Label class="mb-2 block">{tax.name}</Label>
+                <Label class="mb-2 block">
+                  {tax.name}
+                  {#if locked}<span class="ml-1 font-normal text-[#0B2E8D]/50 dark:text-[#C4C0D4]/50">(admin only)</span>{/if}
+                </Label>
                 <div class="flex flex-wrap gap-3">
                   {#each tax.terms as term}
-                    <Checkbox bind:group={selectedTerms[tax.rest_base]} value={term.id}>
+                    <Checkbox bind:group={selectedTerms[tax.rest_base]} value={term.id} disabled={locked}>
                       {term.name}
                     </Checkbox>
                   {:else}
-                    <p class="text-body-sm text-[#0B2E8D]/50 dark:text-[#C4C0D4]/50">Belum ada pilihan</p>
+                    <p class="text-body-sm text-[#0B2E8D]/50 dark:text-[#C4C0D4]/50">No options yet</p>
                   {/each}
                 </div>
               </div>
@@ -197,7 +213,7 @@
               <div class={field.type === 'textarea' ? 'sm:col-span-2 lg:col-span-3' : ''}>
                 <Label class="mb-1">
                   {field.label}
-                  {#if field.readonly}<span class="ml-1 font-normal text-[#0B2E8D]/50 dark:text-[#C4C0D4]/50">(otomatis)</span>{/if}
+                  {#if field.readonly}<span class="ml-1 font-normal text-[#0B2E8D]/50 dark:text-[#C4C0D4]/50">(auto)</span>{/if}
                 </Label>
                 {#if field.type === 'select'}
                   <Select items={field.items} bind:value={metabox[field.key]} placeholder={field.placeholder} />

@@ -11,7 +11,6 @@
     GithubSolid,
     LayersSolid,
     LifeSaverSolid,
-    LockSolid,
     WandMagicSparklesOutline,
     ChartPieOutline,
     RectangleListSolid,
@@ -64,6 +63,7 @@
   let posts = [
     { name: 'Dashboard', Icon: ChartPieOutline, href: '/dashboard' },
     { name: 'Digital Asset', Icon: LayersSolid, href: '/Asset' },
+    { name: 'Manage Users', Icon: RectangleListSolid, href: '/crud/users'},
     {
       name: 'Layouts',
       Icon: TableColumnSolid,
@@ -77,7 +77,6 @@
       Icon: RectangleListSolid,
       children: {
         Products: '/crud/products',
-        Users: '/crud/users'
       }
     },
     { name: 'Settings', Icon: CogOutline, href: '/settings' },
@@ -89,17 +88,6 @@
         Maintenance: '/errors/400',
         '404 not found': '/errors/404',
         '500 server error': '/errors/500'
-      }
-    },
-    {
-      name: 'Authentication',
-      Icon: LockSolid,
-      children: {
-        'Sign in': '/authentication/sign-in',
-        'Sign up': '/authentication/sign-up',
-        'Forgot password': '/authentication/forgot-password',
-        'Reset password': '/authentication/reset-password',
-        'Profile lock': '/authentication/profile-lock'
       }
     },
     {
@@ -148,7 +136,7 @@
   classes={sidebarClasses}
 >
   <h4 class="sr-only">Main menu</h4>
-  <SidebarWrapper class="scrolling-touch h-full max-w-2xs overflow-y-auto bg-white px-3 pt-20 lg:sticky lg:me-0 lg:block lg:h-[calc(100vh-4rem)] lg:pt-5 dark:bg-[#0B0711]">
+  <SidebarWrapper class="overflow: scrolling-touch h-full max-w-2xs overflow-y-auto no-scrollbar bg-white px-3 pt-20 lg:sticky lg:me-0 lg:block lg:h-[calc(100vh-4rem)] lg:pt-5 dark:bg-[#0B0711]">
     <SidebarGroup class={groupClass}>
       {#each posts as { name, Icon, children, href } (name)}
         {#if children}

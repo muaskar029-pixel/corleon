@@ -54,13 +54,13 @@
 
   {#if errorMsg}
     <div class="text-body-sm mb-6 max-w-4xl rounded-2xl border border-[#DB000F]/30 bg-[#A10000]/10 p-4 text-[#DB000F] dark:bg-[#A10000]/30 dark:text-white">
-      <span class="font-bold">Gagal:</span> {errorMsg}
+      <span class="font-bold">Error:</span> {errorMsg}
     </div>
   {/if}
 
   <form class="brand-form max-w-4xl space-y-6" onsubmit={save}>
     <section class="rounded-2xl border border-[#C4C0D4]/40 bg-white p-6 shadow-[0_8px_24px_-12px_rgba(14,3,71,0.25)] dark:border-white/10 dark:bg-[#150B52]">
-      <h2 class="text-body-sm mb-4 font-bold tracking-wider text-[#DB000F] uppercase">Akun</h2>
+      <h2 class="text-body-sm mb-4 font-bold tracking-wider text-[#DB000F] uppercase">Account</h2>
       <div class="grid gap-4 sm:grid-cols-2">
         <div>
           <Label class="mb-2">Username</Label>
@@ -82,7 +82,7 @@
     </section>
 
     <section class="rounded-2xl border border-[#C4C0D4]/40 bg-white p-6 shadow-[0_8px_24px_-12px_rgba(14,3,71,0.25)] dark:border-white/10 dark:bg-[#150B52]">
-      <h2 class="text-body-sm mb-4 font-bold tracking-wider text-[#DB000F] uppercase">Level Akses</h2>
+      <h2 class="text-body-sm mb-4 font-bold tracking-wider text-[#DB000F] uppercase">Access Level</h2>
       <!-- radio cards: the native radio is visually hidden, the whole card is the click target -->
       <div class="grid gap-3 sm:grid-cols-3">
         {#each roles as r (r.value)}

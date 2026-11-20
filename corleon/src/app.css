@@ -63,6 +63,10 @@
     font-family: var(--font-body);
   }
 
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
   h1,
   h2,
   h3,
@@ -124,6 +128,10 @@
 }
 .dark .brand-form label {
   color: #ffffff;
+}
+/* native date text + calendar icon are drawn by the browser; tell it the page is dark */
+.dark input[type='date'] {
+  color-scheme: dark;
 }
 .dark .brand-form input[type='checkbox']:not(:checked) {
   border-color: rgb(255 255 255 / 0.25);

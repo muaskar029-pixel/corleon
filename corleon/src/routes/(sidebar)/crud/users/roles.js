@@ -24,6 +24,21 @@ export const roles = [
   }
 ];
 
+// UI permissions per access level. They only hide/show screens; WordPress still enforces them server-side.
+export const isAdmin = (role) => role === 'administrator';
+export const canEditAssets = (role) => role === 'administrator' || role === 'dam_contributor';
+
+// access_level terms each role may not see; any other role (subscriber, logged out) gets the strictest list
+const hiddenLevels = {
+  administrator: [],
+  dam_contributor: ['restricted', 'confidential']
+};
+export function canViewAsset(role, asset) {
+  const hidden = hiddenLevels[role] ?? ['internal', 'restricted', 'confidential'];
+  const terms = asset._embedded?.['wp:term']?.flat() || [];
+  return !terms.some((t) => t.taxonomy === 'access_level' && hidden.includes(t.slug.toLowerCase()));
+}
+
 // unknown WordPress roles (e.g. "subscriber") fall back to a neutral outline badge
 export const roleOf = (value) =>
   roles.find((r) => r.value === value) ?? {

@@ -21,7 +21,7 @@ export const licenseOptions = [
 
 export const fieldGroups = [
   {
-    name: 'Umum',
+    name: 'General',
     fields: [
       { key: 'resource_type', label: 'Resource Type', type: 'select', items: resourceOptions, placeholder: 'Choose Resource Type' },
       { key: 'date', label: 'Date', type: 'date' },
@@ -34,7 +34,7 @@ export const fieldGroups = [
     ]
   },
   {
-    name: 'Orang & Kata Kunci',
+    name: 'People & Keywords',
     fields: [
       { key: 'photographer', label: 'Photographer' },
       { key: 'editor', label: 'Editor' },
@@ -66,7 +66,7 @@ export const fieldGroups = [
     ]
   },
   {
-    name: 'Teks',
+    name: 'Text',
     fields: [
       { key: 'caption', label: 'Caption', type: 'textarea' },
       { key: 'document_extract', label: 'Document extract', type: 'textarea', readonly: true }
